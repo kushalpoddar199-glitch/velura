@@ -10,7 +10,7 @@ async function supported() {
   return navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
 }
 
-async function launch({ albedo, width = 1.2, depth = 0.6, name = 'slab' } = {}) {
+async function launch({ albedo, width = 2.4, depth = 1.6, name = 'slab' } = {}) {
   if (active) return active.session;
   if (!albedo) throw new Error('VeluraXR.launch: albedo texture URL is required');
 
