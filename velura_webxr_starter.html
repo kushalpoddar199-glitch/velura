@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Velura — WebXR Marble Placement</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
+  #info {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 14px 18px; text-align: center; font-size: 14px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="overlay">
+  <div id="info">Point at the floor &mdash; pull trigger to place slab</div>
+</div>
+
+<!-- Import map: lets us use bare module names with three.js from a CDN -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ---------------------------------------------------------------
+// 1. SCENE + RENDERER
+// alpha:true → transparent background → Quest passthrough shows through
+// ---------------------------------------------------------------
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.01, 40);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.xr.enabled = true;                    // <-- turns on WebXR support
+document.body.appendChild(renderer.domElement);
+
+// Simple lighting. (Later: 'light-estimation' feature for MR realism.)
+scene.add(new THREE.HemisphereLight(0xffffff, 0x888877, 2.2));
+const dir = new THREE.DirectionalLight(0xffffff, 1.4);
+dir.position.set(0.5, 2, 0.5);
+scene.add(dir);
+
+// ---------------------------------------------------------------
+// 2. THE "ENTER AR" BUTTON
+// 'hit-test' is required — it's how we find real-world surfaces.
+// 'dom-overlay' lets the instruction text stay visible inside AR.
+// On Quest 3S, immersive-ar automatically enables passthrough.
+// ---------------------------------------------------------------
+document.body.appendChild(ARButton.createButton(renderer, {
+  requiredFeatures: ['hit-test'],
+  optionalFeatures: ['dom-overlay'],
+  domOverlay: { root: document.getElementById('overlay') }
+}));
+
+// ---------------------------------------------------------------
+// 3. RETICLE — the ring that shows where the slab will be placed
+// ---------------------------------------------------------------
+const reticle = new THREE.Mesh(
+  new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+reticle.matrixAutoUpdate = false;   // we drive its matrix from hit-test poses
+reticle.visible = false;
+scene.add(reticle);
+
+// ---------------------------------------------------------------
+// 4. THE MARBLE SLAB
+// Try to load a GLB (same textures as your USDZ pipeline, different
+// container). If it's missing, fall back to a plain slab so the demo
+// still works before your GLB pipeline is ready.
+// ---------------------------------------------------------------
+let slabTemplate = null;
+
+new GLTFLoader().load(
+  './statuario.glb',
+  (gltf) => {
+    slabTemplate = gltf.scene;
+    // GLB materials are single-sided by default in three.js —
+    // same doubleSided lesson you learned with USDZ.
+    slabTemplate.traverse(o => { if (o.isMesh) o.material.side = THREE.DoubleSide; });
+  },
+  undefined,
+  () => {
+    // Fallback: 1.2m x 0.6m x 2cm slab, marble-ish material
+    const geo = new THREE.BoxGeometry(1.2, 0.02, 0.6);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xf2efe9, roughness: 0.25, metalness: 0.0 });
+    slabTemplate = new THREE.Mesh(geo, mat);
+    console.warn('statuario.glb not found — using fallback slab');
+  }
+);
+
+// ---------------------------------------------------------------
+// 5. INPUT — the Quest controller trigger fires a 'select' event.
+// Place a copy of the slab wherever the reticle currently sits.
+// ---------------------------------------------------------------
+const controller = renderer.xr.getController(0);
+controller.addEventListener('select', () => {
+  if (!reticle.visible || !slabTemplate) return;
+  const slab = slabTemplate.clone();
+  reticle.matrix.decompose(slab.position, slab.quaternion, new THREE.Vector3());
+  scene.add(slab);
+});
+scene.add(controller);
+
+// ---------------------------------------------------------------
+// 6. HIT-TEST PLUMBING + RENDER LOOP
+// Each XR frame we ask: "where does a ray from the headset hit a
+// real surface?" and move the reticle there.
+// ---------------------------------------------------------------
+let hitTestSource = null;
+let hitTestRequested = false;
+
+renderer.setAnimationLoop((_, frame) => {
+  if (frame) {
+    const session = renderer.xr.getSession();
+    const refSpace = renderer.xr.getReferenceSpace();
+
+    // One-time setup per session: create the hit-test source
+    if (!hitTestRequested) {
+      session.requestReferenceSpace('viewer').then(viewerSpace =>
+        session.requestHitTestSource({ space: viewerSpace })
+          .then(src => { hitTestSource = src; })
+      );
+      session.addEventListener('end', () => {
+        hitTestRequested = false;
+        hitTestSource = null;
+      });
+      hitTestRequested = true;
+    }
+
+    // Every frame: update the reticle from the latest hit
+    if (hitTestSource) {
+      const hits = frame.getHitTestResults(hitTestSource);
+      if (hits.length > 0) {
+        reticle.visible = true;
+        reticle.matrix.fromArray(hits[0].getPose(refSpace).transform.matrix);
+      } else {
+        reticle.visible = false;
+      }
+    }
+  }
+  renderer.render(scene, camera);
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
