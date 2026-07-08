@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Velura MR — Full Pipeline Validation</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
+  #overlay {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 10px 14px; font-size: 12px; line-height: 1.5;
+    pointer-events: none; white-space: pre-wrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,.8);
+    max-height: 60vh; overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="overlay">Loading engine…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "martinez-polygon-clipping": "https://cdn.jsdelivr.net/npm/martinez-polygon-clipping@0.8.1/+esm"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
+
+import { buildRegion } from './engine/geometry/geometry-engine.js';
+import { computeLayout } from './engine/layout/layout-engine.js';
+import { getPatternRule } from './engine/design-rules/design-rule-engine.js';
+import { getMaterialProvider } from './engine/material/material-engine.js';
+import { makeSyntheticMarbleAlbedo } from './engine/material/pixel-buffer.js';
+import { computeBudget } from './engine/variant-budget/variant-budget-manager.js';
+import { getDeviceProfile } from './engine/variant-budget/device-profiles.js';
+import { buildAtlas } from './engine/atlas/atlas-builder.js';
+import { render } from './engine/renderer/renderer.js';
+
+const overlay = document.getElementById('overlay');
+const log = (line) => {
+  overlay.textContent += '\n' + line;
+  console.log('[VeluraMR]', line);
+};
+const setStatus = (line) => { overlay.textContent = line; };
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.01, 40);
+const renderer3js = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer3js.setPixelRatio(devicePixelRatio);
+renderer3js.setSize(innerWidth, innerHeight);
+renderer3js.xr.enabled = true;
+document.body.appendChild(renderer3js.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x888877, 2.2));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+dirLight.position.set(0.4, 1.0, 0.3);
+scene.add(dirLight);
+
+document.body.appendChild(ARButton.createButton(renderer3js, {
+  requiredFeatures: ['hit-test'],
+  optionalFeatures: ['plane-detection', 'dom-overlay'],
+  domOverlay: { root: document.getElementById('overlay') },
+}));
+
+setStatus('Scanning room…');
+
+const STATE = { SCANNING: 0, FLOOR_FOUND: 1, PIPELINE_RUNNING: 2, DONE: 3 };
+let state = STATE.SCANNING;
+let floorPlane = null;
+let floorPose = null;
+
+function polygonArea(points) {
+  let a = 0;
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i], q = points[(i + 1) % points.length];
+    a += p.x * q.z - q.x * p.z;
+  }
+  return Math.abs(a / 2);
+}
+
+function planeToFloorPolygon(plane, pose) {
+  const points = plane.polygon.map((p) => ({ x: p.x, z: p.z }));
+  const matrixArr = new Float32Array(pose.transform.matrix);
+  let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+  points.forEach((p) => {
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
+  });
+  return {
+    points,
+    y: 0,
+    anchorMatrix: matrixArr,
+    areaM2: polygonArea(points),
+    bounds: { minX, maxX, minZ, maxZ },
+    anchorId: 'quest-floor-' + Date.now(),
+  };
+}
+
+async function runPipeline(floorPolygon) {
+  state = STATE.PIPELINE_RUNNING;
+  overlay.textContent = 'Running pipeline…';
+  const timings = {};
+  const t = (label, fn) => {
+    const start = performance.now();
+    const result = fn();
+    timings[label] = (performance.now() - start).toFixed(1);
+    return result;
+  };
+  const tAsync = async (label, fn) => {
+    const start = performance.now();
+    const result = await fn();
+    timings[label] = (performance.now() - start).toFixed(1);
+    return result;
+  };
+
+  try {
+    const region = t('geometry', () => buildRegion(floorPolygon));
+    log(`geometry: ${timings.geometry}ms — area ${region.areaM2.toFixed(2)}m²`);
+
+    const spec = { widthMM: 2400, heightMM: 1600, groutMM: 3, pattern: 'grid', pricePerM2: 100 };
+    const rule = getPatternRule('straight');
+    const layoutResult = t('layout', () => computeLayout(region, spec, rule, 1));
+    log(`layout: ${timings.layout}ms — ${layoutResult.metrics.slabCount} slabs ` +
+        `(${layoutResult.metrics.fullSlabs} full, ${layoutResult.metrics.cutSlabs} cut)`);
+
+    const requirements = t('budget', () => computeBudget({
+      slabCount: layoutResult.metrics.slabCount,
+      floorAreaM2: layoutResult.metrics.floorAreaM2,
+      deviceProfile: getDeviceProfile('quest3s'),
+      targetFPS: 90,
+    }));
+    log(`budget: ${timings.budget}ms — ${requirements.variantCount} variants @ ${requirements.textureResolution}px, ${requirements.shaderComplexity}`);
+
+    const master = {
+      albedo: makeSyntheticMarbleAlbedo(256, 256, 7),
+      metadata: { grainAxis: { x: 1, z: 0.3 }, seed: 7, sourceId: 'validation-run' },
+    };
+    const provider = getMaterialProvider('procedural');
+    const variantSet = await tAsync('material', () => provider.generateMaterialVariants(master, requirements));
+    log(`material: ${timings.material}ms — ${variantSet.variants.length} variants generated`);
+
+    const atlasDescriptor = t('atlas', () => buildAtlas(variantSet, requirements));
+    log(`atlas: ${timings.atlas}ms — ${atlasDescriptor.cols}x${atlasDescriptor.rows} grid, ` +
+        `${atlasDescriptor.albedo.width}x${atlasDescriptor.albedo.height}px`);
+
+    const anchorGroup = new THREE.Group();
+    anchorGroup.matrixAutoUpdate = false;
+    anchorGroup.matrix.fromArray(floorPolygon.anchorMatrix);
+    scene.add(anchorGroup);
+
+    const handle = t('render', () => render(layoutResult, atlasDescriptor, anchorGroup));
+    log(`render: ${timings.render}ms — GPU objects created`);
+
+    const total = Object.values(timings).reduce((s, v) => s + parseFloat(v), 0);
+    log(`TOTAL: ${total.toFixed(1)}ms`);
+    log('Watching FPS for 5s…');
+
+    state = STATE.DONE;
+    monitorFPS();
+  } catch (err) {
+    log(`ERROR at pipeline stage: ${err.message}`);
+    console.error(err);
+  }
+}
+
+function monitorFPS() {
+  let frames = 0;
+  const start = performance.now();
+  function tick() {
+    frames++;
+    const elapsed = performance.now() - start;
+    if (elapsed < 5000) {
+      requestAnimationFrame(tick);
+    } else {
+      const fps = (frames / (elapsed / 1000)).toFixed(1);
+      log(`Average FPS over 5s: ${fps}`);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+const reticle = new THREE.Mesh(
+  new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+reticle.matrixAutoUpdate = false;
+reticle.visible = false;
+scene.add(reticle);
+
+const controller = renderer3js.xr.getController(0);
+controller.addEventListener('select', () => {
+  if (state === STATE.FLOOR_FOUND) {
+    const floorPolygon = planeToFloorPolygon(floorPlane, floorPose);
+    runPipeline(floorPolygon);
+  } else if (state === STATE.SCANNING && reticle.visible) {
+    log('plane-detection unavailable — using a synthesized 3x3m floor at the hit point');
+    const m = new THREE.Matrix4().fromArray(reticle.matrix.elements);
+    const pos = new THREE.Vector3();
+    m.decompose(pos, new THREE.Quaternion(), new THREE.Vector3());
+    const half = 1.5;
+    const points = [
+      { x: pos.x - half, z: pos.z - half },
+      { x: pos.x + half, z: pos.z - half },
+      { x: pos.x + half, z: pos.z + half },
+      { x: pos.x - half, z: pos.z + half },
+    ];
+    const floorPolygon = {
+      points,
+      y: 0,
+      anchorMatrix: new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+      areaM2: 9,
+      bounds: { minX: pos.x - half, maxX: pos.x + half, minZ: pos.z - half, maxZ: pos.z + half },
+      anchorId: 'synthesized-' + Date.now(),
+    };
+    runPipeline(floorPolygon);
+  }
+});
+scene.add(controller);
+
+let hitTestSource = null;
+renderer3js.xr.addEventListener('sessionstart', () => {
+  const session = renderer3js.xr.getSession();
+  session.requestReferenceSpace('viewer').then((space) =>
+    session.requestHitTestSource({ space }).then((src) => { hitTestSource = src; })
+  );
+});
+
+renderer3js.setAnimationLoop((_, frame) => {
+  if (frame) {
+    const refSpace = renderer3js.xr.getReferenceSpace();
+
+    if (state === STATE.SCANNING && hitTestSource) {
+      const hits = frame.getHitTestResults(hitTestSource);
+      reticle.visible = hits.length > 0;
+      if (hits.length > 0) reticle.matrix.fromArray(hits[0].getPose(refSpace).transform.matrix);
+    }
+
+    if (frame.detectedPlanes && state === STATE.SCANNING) {
+      let best = null, bestArea = 0;
+      frame.detectedPlanes.forEach((plane) => {
+        if (plane.orientation !== 'horizontal') return;
+        const pose = frame.getPose(plane.planeSpace, refSpace);
+        if (!pose) return;
+        const area = polygonArea(plane.polygon.map((p) => ({ x: p.x, z: p.z })));
+        if (area > 0.5 && area > bestArea) { best = plane; bestArea = area; }
+      });
+      if (best) {
+        floorPlane = best;
+        floorPose = frame.getPose(best.planeSpace, refSpace);
+        state = STATE.FLOOR_FOUND;
+        setStatus('Floor found ✓ — pull trigger to run the full pipeline');
+      }
+    }
+  }
+  renderer3js.render(scene, camera);
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer3js.setSize(innerWidth, innerHeight);
+});
+
+setStatus('Tap "START AR" to begin');
+</script>
+</body>
+</html>
