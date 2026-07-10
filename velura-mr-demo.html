@@ -3,20 +3,45 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Velura MR — Full Pipeline Validation</title>
+<title>Velura MR — Pipeline Verification</title>
 <style>
-  body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
-  #overlay {
+  body { margin: 0; font-family: monospace; background: #111; color: #0f0; }
+  #debugPanel {
     position: absolute; top: 0; left: 0; right: 0;
-    padding: 10px 14px; font-size: 12px; line-height: 1.5;
-    pointer-events: none; white-space: pre-wrap;
-    text-shadow: 0 1px 3px rgba(0,0,0,.8);
-    max-height: 60vh; overflow: hidden;
+    padding: 8px 10px; font-size: 11px; line-height: 1.45;
+    background: rgba(0,0,0,0.75); pointer-events: none;
+    border-bottom: 1px solid #444;
+  }
+  #debugPanel div { white-space: nowrap; }
+  .pass { color: #4f4; } .fail { color: #f44; } .warn { color: #fd4; } .info { color: #4bf; }
+  #log {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 40vh;
+    padding: 6px 10px; font-size: 10px; line-height: 1.4;
+    background: rgba(0,0,0,0.75); overflow: hidden; pointer-events: none;
+    white-space: pre-wrap;
   }
 </style>
 </head>
 <body>
-<div id="overlay">Loading engine…</div>
+
+<script>
+  window.addEventListener('error', function (e) {
+    document.getElementById('debugPanel').innerHTML =
+      '<div class="fail">FATAL — script/module failed to load or run</div>' +
+      '<div class="fail">' + (e.message || 'unknown error') + '</div>' +
+      '<div class="fail">' + (e.filename || '') + ':' + (e.lineno || '') + '</div>';
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    document.getElementById('debugPanel').innerHTML +=
+      '<div class="fail">UNHANDLED PROMISE REJECTION: ' +
+      (e.reason && e.reason.message ? e.reason.message : String(e.reason)) + '</div>';
+  });
+</script>
+
+<div id="debugPanel">
+  <div class="warn">Loading engine…</div>
+</div>
+<div id="log"></div>
 
 <script type="importmap">
 {
@@ -41,13 +66,49 @@ import { computeBudget } from './engine/variant-budget/variant-budget-manager.js
 import { getDeviceProfile } from './engine/variant-budget/device-profiles.js';
 import { buildAtlas } from './engine/atlas/atlas-builder.js';
 import { render } from './engine/renderer/renderer.js';
+import { buildRenderGroups } from './engine/renderer/instance-builder.js';
 
-const overlay = document.getElementById('overlay');
-const log = (line) => {
-  overlay.textContent += '\n' + line;
-  console.log('[VeluraMR]', line);
+console.log('[VeluraMR] all engine imports resolved successfully');
+
+const debugPanel = document.getElementById('debugPanel');
+const logEl = document.getElementById('log');
+const debugState = {
+  stage: 'idle', floorDetected: false, vertexCount: 0, floorAreaM2: 0,
+  placementCount: 0, cutSlabs: 0, wasteAreaM2: 0, variantCount: 0, atlasSize: '-',
+  instanceCount: 0, drawCalls: 0, fps: 0, timings: {}, correlationId: '-',
 };
-const setStatus = (line) => { overlay.textContent = line; };
+
+function renderDebugPanel() {
+  const t = debugState.timings;
+  const timingLines = Object.keys(t).map((k) => `${k}=${t[k]}ms`).join(' ');
+  debugPanel.innerHTML = `
+<div class="info">CURRENT STAGE: ${debugState.stage}</div>
+<div class="info">CURRENT MODULE: ${debugState.stage}</div>
+<div>Correlation ID: ${debugState.correlationId}</div>
+<div>Floor detected: <span class="${debugState.floorDetected ? 'pass' : 'warn'}">${debugState.floorDetected ? 'YES' : 'NO'}</span></div>
+<div>Floor polygon vertices: ${debugState.vertexCount}</div>
+<div>Floor area: ${debugState.floorAreaM2.toFixed(2)} m²</div>
+<div>Placement count: ${debugState.placementCount}</div>
+<div>Cut pieces: ${debugState.cutSlabs}</div>
+<div>Waste: ${debugState.wasteAreaM2.toFixed(3)} m²</div>
+<div>Variant count: ${debugState.variantCount}</div>
+<div>Atlas size: ${debugState.atlasSize}</div>
+<div>Renderer instance count: ${debugState.instanceCount}</div>
+<div>Draw calls: ${debugState.drawCalls}</div>
+<div>FPS: ${debugState.fps}</div>
+<div>Timings: ${timingLines || '-'}</div>
+`.trim();
+}
+renderDebugPanel();
+
+function logLine(text, cls) {
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = text;
+  logEl.appendChild(line);
+  while (logEl.children.length > 14) logEl.removeChild(logEl.firstChild);
+  console.log('[VeluraMR]', text);
+}
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.01, 40);
@@ -62,13 +123,22 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
 dirLight.position.set(0.4, 1.0, 0.3);
 scene.add(dirLight);
 
-document.body.appendChild(ARButton.createButton(renderer3js, {
+const arButton = ARButton.createButton(renderer3js, {
   requiredFeatures: ['hit-test'],
   optionalFeatures: ['plane-detection', 'dom-overlay'],
-  domOverlay: { root: document.getElementById('overlay') },
-}));
+  domOverlay: { root: document.body },
+});
+document.body.appendChild(arButton);
+logLine('ARButton created — label reads: "' + arButton.textContent + '"', 'info');
 
-setStatus('Scanning room…');
+setTimeout(() => {
+  if (debugState.stage === 'idle') {
+    logLine('WAITING AT: AR session / ARButton — 5s elapsed with no session start', 'warn');
+  }
+}, 5000);
+
+debugState.stage = 'idle — tap START AR';
+renderDebugPanel();
 
 const STATE = { SCANNING: 0, FLOOR_FOUND: 1, PIPELINE_RUNNING: 2, DONE: 3 };
 let state = STATE.SCANNING;
@@ -93,96 +163,146 @@ function planeToFloorPolygon(plane, pose) {
     minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
   });
   return {
-    points,
-    y: 0,
-    anchorMatrix: matrixArr,
+    points, y: 0, anchorMatrix: matrixArr,
     areaM2: polygonArea(points),
     bounds: { minX, maxX, minZ, maxZ },
     anchorId: 'quest-floor-' + Date.now(),
   };
 }
 
-async function runPipeline(floorPolygon) {
-  state = STATE.PIPELINE_RUNNING;
-  overlay.textContent = 'Running pipeline…';
-  const timings = {};
-  const t = (label, fn) => {
-    const start = performance.now();
-    const result = fn();
-    timings[label] = (performance.now() - start).toFixed(1);
-    return result;
-  };
-  const tAsync = async (label, fn) => {
-    const start = performance.now();
-    const result = await fn();
-    timings[label] = (performance.now() - start).toFixed(1);
-    return result;
-  };
+async function runStage(label, fn, isAsync) {
+  logLine(`[${label}] START`);
+  debugState.stage = label;
+  renderDebugPanel();
+  const t0 = performance.now();
+
+  let watchdogFired = false;
+  const watchdog = isAsync ? setTimeout(() => {
+    watchdogFired = true;
+    logLine(`WAITING AT: ${label} — exceeded 5s, still running`, 'warn');
+  }, 5000) : null;
 
   try {
-    const region = t('geometry', () => buildRegion(floorPolygon));
-    log(`geometry: ${timings.geometry}ms — area ${region.areaM2.toFixed(2)}m²`);
+    const result = isAsync ? await fn() : fn();
+    const dt = (performance.now() - t0).toFixed(1);
+    if (watchdog) clearTimeout(watchdog);
+    debugState.timings[label] = dt;
+    logLine(`[${label}] SUCCESS (${dt}ms)`, 'pass');
+    renderDebugPanel();
+    return result;
+  } catch (err) {
+    if (watchdog) clearTimeout(watchdog);
+    const dt = (performance.now() - t0).toFixed(1);
+    logLine(`[${label}] FAIL (${dt}ms)`, 'fail');
+    logLine(`FAILED AT: ${label}`, 'fail');
+    logLine(`Reason: ${err.message}`, 'fail');
+    console.error(err);
+    throw err;
+  }
+}
+
+async function runPipeline(floorPolygon) {
+  const correlationId = 'run-' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
+  logLine(`runPipeline ENTER  [correlationId=${correlationId}]`, 'info');
+  debugState.correlationId = correlationId;
+  state = STATE.PIPELINE_RUNNING;
+  debugState.floorDetected = true;
+  debugState.vertexCount = floorPolygon.points.length;
+  renderDebugPanel();
+
+  try {
+    const region = await runStage('Geometry', () => buildRegion(floorPolygon), false);
+    debugState.floorAreaM2 = region.areaM2;
 
     const spec = { widthMM: 2400, heightMM: 1600, groutMM: 3, pattern: 'grid', pricePerM2: 100 };
-    const rule = getPatternRule('straight');
-    const layoutResult = t('layout', () => computeLayout(region, spec, rule, 1));
-    log(`layout: ${timings.layout}ms — ${layoutResult.metrics.slabCount} slabs ` +
-        `(${layoutResult.metrics.fullSlabs} full, ${layoutResult.metrics.cutSlabs} cut)`);
+    const rule = await runStage('DesignRule', () => getPatternRule('straight'), false);
 
-    const requirements = t('budget', () => computeBudget({
+    const layoutResult = await runStage('Layout', () => computeLayout(region, spec, rule, 1), false);
+    debugState.placementCount = layoutResult.placements.length;
+    debugState.cutSlabs = layoutResult.metrics.cutSlabs;
+    debugState.wasteAreaM2 = layoutResult.metrics.wasteAreaM2;
+
+    const requirements = await runStage('VariantBudget', () => computeBudget({
       slabCount: layoutResult.metrics.slabCount,
       floorAreaM2: layoutResult.metrics.floorAreaM2,
       deviceProfile: getDeviceProfile('quest3s'),
       targetFPS: 90,
-    }));
-    log(`budget: ${timings.budget}ms — ${requirements.variantCount} variants @ ${requirements.textureResolution}px, ${requirements.shaderComplexity}`);
+    }), false);
+    debugState.variantCount = requirements.variantCount;
 
     const master = {
       albedo: makeSyntheticMarbleAlbedo(256, 256, 7),
       metadata: { grainAxis: { x: 1, z: 0.3 }, seed: 7, sourceId: 'validation-run' },
     };
     const provider = getMaterialProvider('procedural');
-    const variantSet = await tAsync('material', () => provider.generateMaterialVariants(master, requirements));
-    log(`material: ${timings.material}ms — ${variantSet.variants.length} variants generated`);
+    const variantSet = await runStage(
+      'Material', () => provider.generateMaterialVariants(master, requirements), true
+    );
 
-    const atlasDescriptor = t('atlas', () => buildAtlas(variantSet, requirements));
-    log(`atlas: ${timings.atlas}ms — ${atlasDescriptor.cols}x${atlasDescriptor.rows} grid, ` +
-        `${atlasDescriptor.albedo.width}x${atlasDescriptor.albedo.height}px`);
+    const atlasDescriptor = await runStage('Atlas', () => buildAtlas(variantSet, requirements), false);
+    debugState.atlasSize = `${atlasDescriptor.albedo.width}x${atlasDescriptor.albedo.height} (${atlasDescriptor.cols}x${atlasDescriptor.rows} cells)`;
+
+    const groups = buildRenderGroups(layoutResult, atlasDescriptor);
+    const instanceCount = groups.reduce((sum, g) => sum + g.count, 0);
+    debugState.instanceCount = instanceCount;
 
     const anchorGroup = new THREE.Group();
     anchorGroup.matrixAutoUpdate = false;
     anchorGroup.matrix.fromArray(floorPolygon.anchorMatrix);
     scene.add(anchorGroup);
 
-    const handle = t('render', () => render(layoutResult, atlasDescriptor, anchorGroup));
-    log(`render: ${timings.render}ms — GPU objects created`);
+    await runStage('Renderer', () => render(layoutResult, atlasDescriptor, anchorGroup), false);
 
-    const total = Object.values(timings).reduce((s, v) => s + parseFloat(v), 0);
-    log(`TOTAL: ${total.toFixed(1)}ms`);
-    log('Watching FPS for 5s…');
+    if (instanceCount === layoutResult.placements.length) {
+      logLine(`[Verify] instanceCount(${instanceCount}) == placementCount(${layoutResult.placements.length}) -> PASS`, 'pass');
+    } else {
+      logLine(`ERROR Renderer does not match Layout.`, 'fail');
+      logLine(`[Verify] instanceCount(${instanceCount}) != placementCount(${layoutResult.placements.length}) -> FAIL`, 'fail');
+    }
+
+    const wireGeomCache = new Map();
+    layoutResult.placements.forEach((p, idx) => {
+      const key = `${p.geometry.widthM.toFixed(3)}x${p.geometry.depthM.toFixed(3)}`;
+      if (!wireGeomCache.has(key)) {
+        const box = new THREE.BoxGeometry(p.geometry.widthM, 0.021, p.geometry.depthM);
+        wireGeomCache.set(key, new THREE.WireframeGeometry(box));
+      }
+      const color = p.geometry.isCut ? 0xff0000 : 0x00ff00;
+      const line = new THREE.LineSegments(
+        wireGeomCache.get(key),
+        new THREE.LineBasicMaterial({ color })
+      );
+      line.position.set(p.transform.position.x, p.transform.position.y, p.transform.position.z);
+      line.rotation.y = p.transform.rotationY;
+      anchorGroup.add(line);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 128; canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = p.geometry.isCut ? '#ff4444' : '#44ff44';
+      ctx.fillRect(0, 0, 128, 64);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 20px monospace';
+      ctx.fillText(`#${idx}`, 8, 24);
+      ctx.fillText(`r${p.metadata.row}c${p.metadata.col}`, 8, 50);
+      const tex = new THREE.CanvasTexture(canvas);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
+      sprite.scale.set(0.3, 0.15, 1);
+      sprite.position.set(p.transform.position.x, p.transform.position.y + 0.05, p.transform.position.z);
+      anchorGroup.add(sprite);
+    });
+    logLine(`Debug wireframes + labels added: ${layoutResult.placements.length} slabs (red=cut, green=full)`, 'info');
 
     state = STATE.DONE;
-    monitorFPS();
+    debugState.stage = 'DONE';
+    renderDebugPanel();
+    logLine(`runPipeline EXIT (success)  [correlationId=${correlationId}]`, 'info');
   } catch (err) {
-    log(`ERROR at pipeline stage: ${err.message}`);
-    console.error(err);
+    state = STATE.DONE;
+    debugState.stage = `FAILED (see log)`;
+    renderDebugPanel();
+    logLine(`runPipeline EXIT (failure)  [correlationId=${correlationId}]`, 'fail');
   }
-}
-
-function monitorFPS() {
-  let frames = 0;
-  const start = performance.now();
-  function tick() {
-    frames++;
-    const elapsed = performance.now() - start;
-    if (elapsed < 5000) {
-      requestAnimationFrame(tick);
-    } else {
-      const fps = (frames / (elapsed / 1000)).toFixed(1);
-      log(`Average FPS over 5s: ${fps}`);
-    }
-  }
-  requestAnimationFrame(tick);
 }
 
 const reticle = new THREE.Mesh(
@@ -196,40 +316,45 @@ scene.add(reticle);
 const controller = renderer3js.xr.getController(0);
 controller.addEventListener('select', () => {
   if (state === STATE.FLOOR_FOUND) {
-    const floorPolygon = planeToFloorPolygon(floorPlane, floorPose);
-    runPipeline(floorPolygon);
+    logLine('Trigger pulled — floor from plane-detection', 'info');
+    runPipeline(planeToFloorPolygon(floorPlane, floorPose));
   } else if (state === STATE.SCANNING && reticle.visible) {
-    log('plane-detection unavailable — using a synthesized 3x3m floor at the hit point');
+    logLine('FALLBACK ACTIVATED', 'warn');
+    logLine('Reason: plane-detection unsupported or floor not yet found — using hit-test point instead', 'warn');
     const m = new THREE.Matrix4().fromArray(reticle.matrix.elements);
     const pos = new THREE.Vector3();
     m.decompose(pos, new THREE.Quaternion(), new THREE.Vector3());
     const half = 1.5;
     const points = [
-      { x: pos.x - half, z: pos.z - half },
-      { x: pos.x + half, z: pos.z - half },
-      { x: pos.x + half, z: pos.z + half },
-      { x: pos.x - half, z: pos.z + half },
+      { x: pos.x - half, z: pos.z - half }, { x: pos.x + half, z: pos.z - half },
+      { x: pos.x + half, z: pos.z + half }, { x: pos.x - half, z: pos.z + half },
     ];
-    const floorPolygon = {
-      points,
-      y: 0,
+    runPipeline({
+      points, y: 0,
       anchorMatrix: new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
       areaM2: 9,
       bounds: { minX: pos.x - half, maxX: pos.x + half, minZ: pos.z - half, maxZ: pos.z + half },
       anchorId: 'synthesized-' + Date.now(),
-    };
-    runPipeline(floorPolygon);
+    });
   }
 });
 scene.add(controller);
 
 let hitTestSource = null;
 renderer3js.xr.addEventListener('sessionstart', () => {
+  logLine('WebXR session started', 'pass');
+  debugState.stage = 'Scanning room…';
+  renderDebugPanel();
   const session = renderer3js.xr.getSession();
   session.requestReferenceSpace('viewer').then((space) =>
-    session.requestHitTestSource({ space }).then((src) => { hitTestSource = src; })
+    session.requestHitTestSource({ space }).then((src) => {
+      hitTestSource = src;
+      logLine('Hit-test source ready', 'pass');
+    })
   );
 });
+
+let fpsFrames = 0, fpsStart = performance.now();
 
 renderer3js.setAnimationLoop((_, frame) => {
   if (frame) {
@@ -254,11 +379,22 @@ renderer3js.setAnimationLoop((_, frame) => {
         floorPlane = best;
         floorPose = frame.getPose(best.planeSpace, refSpace);
         state = STATE.FLOOR_FOUND;
-        setStatus('Floor found ✓ — pull trigger to run the full pipeline');
+        debugState.stage = 'Floor found ✓ — pull trigger';
+        renderDebugPanel();
       }
     }
   }
+
   renderer3js.render(scene, camera);
+
+  fpsFrames++;
+  const elapsed = performance.now() - fpsStart;
+  if (elapsed >= 1000) {
+    debugState.fps = (fpsFrames / (elapsed / 1000)).toFixed(1);
+    debugState.drawCalls = renderer3js.info.render.calls;
+    fpsFrames = 0; fpsStart = performance.now();
+    renderDebugPanel();
+  }
 });
 
 addEventListener('resize', () => {
@@ -266,8 +402,6 @@ addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer3js.setSize(innerWidth, innerHeight);
 });
-
-setStatus('Tap "START AR" to begin');
 </script>
 </body>
 </html>
