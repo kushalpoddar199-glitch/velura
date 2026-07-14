@@ -57,9 +57,8 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 
-import { buildRegion } from './engine/geometry/geometry-engine.js';
 import { computeLayout } from './engine/layout/layout-engine.js';
-import { getPatternRule } from './engine/design-rules/design-rule-engine.js';
+import { mulberry32, fnv1aHash } from './engine/layout/prng.js';
 import { getMaterialProvider } from './engine/material/material-engine.js';
 import { makeSyntheticMarbleAlbedo } from './engine/material/pixel-buffer.js';
 import { computeBudget } from './engine/variant-budget/variant-budget-manager.js';
@@ -67,6 +66,58 @@ import { getDeviceProfile } from './engine/variant-budget/device-profiles.js';
 import { buildAtlas } from './engine/atlas/atlas-builder.js';
 import { render } from './engine/renderer/renderer.js';
 import { buildRenderGroups } from './engine/renderer/instance-builder.js';
+
+function adaptLayoutResult(newResult, slabSpecMeters, floorY, seed) {
+  const placements = newResult.placements.map((p) => {
+    const variantSeed = fnv1aHash(`${seed}|${p.id}`);
+    const variantId = Math.floor(mulberry32(variantSeed)() * 0xffffffff);
+    return {
+      id: `slab-${p.id}`,
+      slabId: `slab-${p.id}`,
+      variantId,
+      transform: {
+        position: { x: p.x, y: floorY ?? 0, z: p.y },
+        rotationY: p.rotation,
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      geometry: {
+        widthM: slabSpecMeters.width,
+        depthM: slabSpecMeters.height,
+        isCut: p.isCut,
+        cutPolygon: p.isCut && p.cutPolygon
+          ? p.cutPolygon.map((pt) => ({ x: pt.x, z: pt.y }))
+          : undefined,
+      },
+      metadata: {
+        row: p.row,
+        col: p.col,
+        patternSlot: `${p.patternType}-${p.row}-${p.col}`,
+        isBookmatchPair: false,
+      },
+    };
+  });
+
+  const rows = placements.length ? Math.max(...placements.map((p) => p.metadata.row)) + 1 : 0;
+  const cols = placements.length ? Math.max(...placements.map((p) => p.metadata.col)) + 1 : 0;
+
+  return {
+    placements,
+    metrics: {
+      floorAreaM2: newResult.floorArea,
+      slabCount: newResult.placements.length,
+      fullSlabs: newResult.fullSlabCount,
+      cutSlabs: newResult.cutSlabCount,
+      coveredAreaM2: newResult.placedArea,
+      materialAreaM2: newResult.totalSlabArea,
+      wasteAreaM2: newResult.wasteArea,
+      wastePercent: newResult.wastePercentage,
+      estimatedCost: newResult.totalSlabArea * (slabSpecMeters.pricePerM2 ?? 0),
+      rows,
+      cols,
+      pattern: newResult.patternName,
+    },
+  };
+}
 
 console.log('[VeluraMR] all engine imports resolved successfully');
 
@@ -108,6 +159,7 @@ function logLine(text, cls) {
   logEl.appendChild(line);
   while (logEl.children.length > 14) logEl.removeChild(logEl.firstChild);
   console.log('[VeluraMR]', text);
+  pushStatusLine(text);
 }
 
 const scene = new THREE.Scene();
@@ -122,6 +174,41 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x888877, 2.2));
 const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
 dirLight.position.set(0.4, 1.0, 0.3);
 scene.add(dirLight);
+
+const statusCanvas = document.createElement('canvas');
+statusCanvas.width = 1024; statusCanvas.height = 512;
+const statusCtx = statusCanvas.getContext('2d');
+const statusTexture = new THREE.CanvasTexture(statusCanvas);
+const statusSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: statusTexture, depthTest: false }));
+statusSprite.scale.set(1.0, 0.5, 1);
+statusSprite.renderOrder = 9999;
+scene.add(statusSprite);
+
+let statusLines = ['Booting…'];
+function pushStatusLine(text) {
+  statusLines.push(text);
+  if (statusLines.length > 9) statusLines.shift();
+  redrawStatusSprite();
+}
+function redrawStatusSprite() {
+  statusCtx.fillStyle = 'rgba(0,0,0,0.75)';
+  statusCtx.fillRect(0, 0, statusCanvas.width, statusCanvas.height);
+  statusCtx.font = 'bold 34px monospace';
+  statusLines.forEach((line, i) => {
+    statusCtx.fillStyle = line.startsWith('FAILED') || line.startsWith('ERROR') ? '#ff4444'
+      : line.includes('SUCCESS') || line.includes('PASS') ? '#44ff44'
+      : line.startsWith('FALLBACK') || line.startsWith('WAITING') ? '#ffdd44'
+      : '#44bbff';
+    statusCtx.fillText(line.slice(0, 46), 16, 50 + i * 50);
+  });
+  statusTexture.needsUpdate = true;
+}
+redrawStatusSprite();
+
+function updateStatusSpritePosition() {
+  const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  statusSprite.position.copy(camera.position).add(forward.multiplyScalar(1.2));
+}
 
 const arButton = ARButton.createButton(renderer3js, {
   requiredFeatures: ['hit-test'],
@@ -211,16 +298,18 @@ async function runPipeline(floorPolygon) {
   renderDebugPanel();
 
   try {
-    const region = await runStage('Geometry', () => buildRegion(floorPolygon), false);
-    debugState.floorAreaM2 = region.areaM2;
+    const polygon2D = floorPolygon.points.map((p) => ({ x: p.x, y: p.z }));
+    const slabSpecMeters = { width: 2.4, height: 1.6, spacing: 0.003, pricePerM2: 100 };
+    const patternConfig = { pattern: 'straight-lay', centered: true };
 
-    const spec = { widthMM: 2400, heightMM: 1600, groutMM: 3, pattern: 'grid', pricePerM2: 100 };
-    const rule = await runStage('DesignRule', () => getPatternRule('straight'), false);
-
-    const layoutResult = await runStage('Layout', () => computeLayout(region, spec, rule, 1), false);
+    const rawLayoutResult = await runStage(
+      'Layout', () => computeLayout(polygon2D, slabSpecMeters, patternConfig, 1), false
+    );
+    const layoutResult = adaptLayoutResult(rawLayoutResult, slabSpecMeters, floorPolygon.y, 1);
     debugState.placementCount = layoutResult.placements.length;
     debugState.cutSlabs = layoutResult.metrics.cutSlabs;
     debugState.wasteAreaM2 = layoutResult.metrics.wasteAreaM2;
+    debugState.floorAreaM2 = layoutResult.metrics.floorAreaM2;
 
     const requirements = await runStage('VariantBudget', () => computeBudget({
       slabCount: layoutResult.metrics.slabCount,
@@ -386,6 +475,7 @@ renderer3js.setAnimationLoop((_, frame) => {
   }
 
   renderer3js.render(scene, camera);
+  updateStatusSpritePosition();
 
   fpsFrames++;
   const elapsed = performance.now() - fpsStart;
