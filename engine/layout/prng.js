@@ -26,3 +26,23 @@ export function fnv1aHash(str) {
   }
   return hash >>> 0;
 }
+
+/**
+ * Park-Miller LCG. Deterministic, seeded, no Math.random().
+ * Added alongside mulberry32 (not replacing it) — Material Engine and
+ * other already-tested code still depend on mulberry32/fnv1aHash above.
+ * @param {number} seed - Any integer
+ * @returns {() => number} Function returning [0, 1)
+ */
+export function createPRNG(seed) {
+  const MODULUS = 2147483647; // 2^31 - 1
+  const MULTIPLIER = 16807;
+
+  let s = Math.floor(Math.abs(seed)) % MODULUS;
+  if (s === 0) s = 12345;
+
+  return () => {
+    s = (s * MULTIPLIER) % MODULUS;
+    return (s - 1) / (MODULUS - 1);
+  };
+}

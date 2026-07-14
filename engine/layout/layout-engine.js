@@ -1,128 +1,51 @@
-// layout-engine.js — Module 3.
-// Pure placement math: given a buildable region and a slab spec, decide
-// where every slab goes. No renderer, no WebXR, no DOM, no three.js,
-// no unseeded randomness. All geometry clipping is delegated to the
-// Geometry Engine — this file never touches polygon booleans itself.
+import { createPRNG } from './prng.js';
+import { designRuleEngine } from '../design-rules/design-rule-engine.js';
+import { StraightLayRule } from '../design-rules/design-rules/straight-lay.js';
+import { RunningBondRule } from '../design-rules/design-rules/running-bond.js';
 
-import { clipRectToRegion, polygonArea } from '../geometry/geometry-engine.js';
-import { mulberry32, fnv1aHash } from './prng.js';
+designRuleEngine.register(StraightLayRule.name, StraightLayRule);
+designRuleEngine.register(RunningBondRule.name, RunningBondRule);
 
-const MM_TO_M = 1 / 1000;
+export function computeLayout(floorPolygon, slabSpec, patternConfig, seed) {
+  if (!floorPolygon || floorPolygon.length < 3) {
+    throw new Error('[LayoutEngine] Invalid floorPolygon: must have >= 3 vertices');
+  }
+  if (!slabSpec || slabSpec.width <= 0 || slabSpec.height <= 0) {
+    throw new Error('[LayoutEngine] Invalid slabSpec: width and height must be > 0');
+  }
+  if (!patternConfig || !patternConfig.pattern) {
+    throw new Error('[LayoutEngine] patternConfig.pattern is required');
+  }
 
-function regionFingerprint(region) {
-  const b = region.bounds;
-  return fnv1aHash(
-    `${b.minX.toFixed(4)}|${b.maxX.toFixed(4)}|${b.minZ.toFixed(4)}|${b.maxZ.toFixed(4)}|` +
-    `${region.outer.length}|${region.holes.length}|${region.areaM2.toFixed(4)}`
+  const prng = createPRNG(seed);
+  const configWithSeed = { ...patternConfig, _seed: seed };
+
+  const result = designRuleEngine.compute(
+    patternConfig.pattern, floorPolygon, slabSpec, configWithSeed, prng
   );
+
+  validateLayoutResult(result, floorPolygon);
+  return result;
 }
 
-export function computeLayout(region, spec, rule, seed) {
-  if (!region || !region.outer || region.outer.length < 3) {
-    throw new Error('computeLayout: region must be a valid BuildableFloorRegion');
+function validateLayoutResult(result, floorPolygon) {
+  if (result.wasteArea < -1e-6) {
+    throw new Error(`[LayoutEngine] Invariant violated: wasteArea < 0 (${result.wasteArea})`);
   }
-  if (!spec || !spec.widthMM || !spec.heightMM) {
-    throw new Error('computeLayout: spec must specify widthMM and heightMM');
+  if (result.placedArea > result.floorArea + 1e-4) {
+    throw new Error(
+      `[LayoutEngine] Invariant violated: placedArea (${result.placedArea}) > floorArea (${result.floorArea})`
+    );
   }
-  if (!rule || typeof rule.computeOffset !== 'function' || typeof rule.computeSlot !== 'function') {
-    throw new Error('computeLayout: rule must implement computeOffset and computeSlot');
+  for (const p of result.placements) {
+    if (!p.bounds) throw new Error(`[LayoutEngine] Placement ${p.id} missing bounds`);
   }
-
-  const widthM = spec.widthMM * MM_TO_M;
-  const depthM = spec.heightMM * MM_TO_M;
-  const groutM = (spec.groutMM ?? 0) * MM_TO_M;
-  const fullSlabAreaM2 = widthM * depthM;
-
-  const rng = mulberry32(seed >>> 0);
-  const regionHash = regionFingerprint(region);
-
-  const stepX = widthM + groutM;
-  const stepZ = depthM + groutM;
-  const { minX, maxX, minZ, maxZ } = region.bounds;
-
-  const margin = Math.max(widthM, depthM);
-  const maxCols = Math.ceil((maxX - minX + margin) / stepX) + 1;
-  const maxRows = Math.ceil((maxZ - minZ + margin) / stepZ) + 1;
-
-  const placements = [];
-  for (let row = 0; row < maxRows; row++) {
-    const z = minZ + row * stepZ;
-    for (let col = 0; col < maxCols; col++) {
-      const x = minX + col * stepX;
-      const offset = rule.computeOffset(row, col);
-      const cx = x + widthM / 2 + (offset.dx ?? 0);
-      const cz = z + depthM / 2 + (offset.dz ?? 0);
-      const rotationY = offset.rotationY ?? 0;
-
-      const clipped = clipRectToRegion(
-        { cx, cz, width: widthM, depth: depthM, rotationY },
-        region
-      );
-      if (!clipped) continue;
-
-      const clippedAreaM2 = polygonArea(clipped);
-      if (clippedAreaM2 < 1e-4) continue;
-
-      const isCut = clippedAreaM2 < fullSlabAreaM2 * (1 - 1e-4);
-      const patternSlot = rule.computeSlot(row, col);
-      const id = `slab-${fnv1aHash(`${seed}|${row}|${col}|${regionHash}`).toString(16)}`;
-      const variantId = Math.floor(rng() * 0xffffffff);
-
-      placements.push({
-        id,
-        slabId: id,
-        variantId,
-        transform: {
-          position: { x: cx, y: region.y ?? 0, z: cz },
-          rotationY,
-          scale: { x: 1, y: 1, z: 1 },
-        },
-        geometry: {
-          widthM,
-          depthM,
-          isCut,
-          cutPolygon: isCut ? clipped : undefined,
-        },
-        metadata: {
-          row,
-          col,
-          patternSlot,
-          isBookmatchPair: patternSlot.includes('bookmatch'),
-          pairId: patternSlot.includes('bookmatch') ? patternSlot : undefined,
-        },
-      });
-    }
+  const expectedCount = result.fullSlabCount + result.cutSlabCount;
+  if (expectedCount !== result.placements.length) {
+    throw new Error(
+      `[LayoutEngine] Count mismatch: full+cut=${expectedCount}, placements=${result.placements.length}`
+    );
   }
-
-  const fullSlabs = placements.filter((p) => !p.geometry.isCut).length;
-  const cutSlabs = placements.length - fullSlabs;
-  const coveredAreaM2 = placements.reduce(
-    (sum, p) => sum + (p.geometry.isCut ? polygonArea(p.geometry.cutPolygon) : fullSlabAreaM2),
-    0
-  );
-  const materialAreaM2 = placements.length * fullSlabAreaM2;
-  const wasteAreaM2 = Math.max(0, materialAreaM2 - coveredAreaM2);
-  const wastePercent = materialAreaM2 > 0 ? (wasteAreaM2 / materialAreaM2) * 100 : 0;
-  const estimatedCost = materialAreaM2 * (spec.pricePerM2 ?? 0);
-  const rows = placements.length ? Math.max(...placements.map((p) => p.metadata.row)) + 1 : 0;
-  const cols = placements.length ? Math.max(...placements.map((p) => p.metadata.col)) + 1 : 0;
-
-  return {
-    placements,
-    metrics: {
-      floorAreaM2: region.areaM2,
-      slabCount: placements.length,
-      fullSlabs,
-      cutSlabs,
-      coveredAreaM2,
-      materialAreaM2,
-      wasteAreaM2,
-      wastePercent,
-      estimatedCost,
-      rows,
-      cols,
-      pattern: rule.name ?? 'unknown',
-    },
-    spec,
-  };
 }
+
+export { designRuleEngine };
