@@ -186,21 +186,33 @@ statusSprite.renderOrder = 9999;
 scene.add(statusSprite);
 
 let statusLines = ['Booting…'];
+let persistentInfo = { path: '-', refSpace: '-', floorVerts: 0, floorArea: 0 };
 function pushStatusLine(text) {
   statusLines.push(text);
-  if (statusLines.length > 9) statusLines.shift();
+  if (statusLines.length > 7) statusLines.shift();
   redrawStatusSprite();
 }
 function redrawStatusSprite() {
-  statusCtx.fillStyle = 'rgba(0,0,0,0.75)';
+  statusCtx.fillStyle = 'rgba(0,0,0,0.85)';
   statusCtx.fillRect(0, 0, statusCanvas.width, statusCanvas.height);
-  statusCtx.font = 'bold 34px monospace';
+
+  statusCtx.font = 'bold 30px monospace';
+  statusCtx.fillStyle = '#ff44ff';
+  statusCtx.fillText(`PATH: ${persistentInfo.path}`, 16, 36);
+  statusCtx.fillText(`REFSPACE: ${persistentInfo.refSpace}`, 16, 70);
+  statusCtx.fillText(`FLOOR: ${persistentInfo.floorVerts}v ${persistentInfo.floorArea.toFixed(1)}m2`, 16, 104);
+  statusCtx.strokeStyle = '#666';
+  statusCtx.beginPath();
+  statusCtx.moveTo(0, 118); statusCtx.lineTo(statusCanvas.width, 118);
+  statusCtx.stroke();
+
+  statusCtx.font = 'bold 30px monospace';
   statusLines.forEach((line, i) => {
     statusCtx.fillStyle = line.startsWith('FAILED') || line.startsWith('ERROR') ? '#ff4444'
       : line.includes('SUCCESS') || line.includes('PASS') ? '#44ff44'
       : line.startsWith('FALLBACK') || line.startsWith('WAITING') ? '#ffdd44'
       : '#44bbff';
-    statusCtx.fillText(line.slice(0, 46), 16, 50 + i * 50);
+    statusCtx.fillText(line.slice(0, 42), 16, 155 + i * 42);
   });
   statusTexture.needsUpdate = true;
 }
@@ -407,10 +419,17 @@ const controller = renderer3js.xr.getController(0);
 controller.addEventListener('select', () => {
   if (state === STATE.FLOOR_FOUND) {
     logLine('Trigger pulled — floor from plane-detection', 'info');
-    runPipeline(planeToFloorPolygon(floorPlane, floorPose));
+    persistentInfo.path = 'PLANE-DETECTION';
+    const fp = planeToFloorPolygon(floorPlane, floorPose);
+    persistentInfo.floorVerts = fp.points.length;
+    persistentInfo.floorArea = fp.areaM2;
+    logLine(`Plane world Y: ${floorPose.transform.position.y.toFixed(3)}m`, 'info');
+    redrawStatusSprite();
+    runPipeline(fp);
   } else if (state === STATE.SCANNING && reticle.visible) {
     logLine('FALLBACK ACTIVATED', 'warn');
     logLine('Reason: plane-detection unsupported or floor not yet found — using hit-test point instead', 'warn');
+    persistentInfo.path = 'FALLBACK (hit-test)';
     const m = new THREE.Matrix4().fromArray(reticle.matrix.elements);
     const pos = new THREE.Vector3();
     m.decompose(pos, new THREE.Quaternion(), new THREE.Vector3());
@@ -419,6 +438,10 @@ controller.addEventListener('select', () => {
       { x: pos.x - half, z: pos.z - half }, { x: pos.x + half, z: pos.z - half },
       { x: pos.x + half, z: pos.z + half }, { x: pos.x - half, z: pos.z + half },
     ];
+    persistentInfo.floorVerts = 4;
+    persistentInfo.floorArea = 9;
+    logLine(`Hit-test world Y: ${pos.y.toFixed(3)}m`, 'info');
+    redrawStatusSprite();
     runPipeline({
       points, y: 0,
       anchorMatrix: new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
@@ -436,6 +459,13 @@ renderer3js.xr.addEventListener('sessionstart', () => {
   debugState.stage = 'Scanning room…';
   renderDebugPanel();
   const session = renderer3js.xr.getSession();
+  session.requestReferenceSpace('local-floor').then(() => {
+    persistentInfo.refSpace = 'local-floor (confirmed)';
+    redrawStatusSprite();
+  }).catch((err) => {
+    persistentInfo.refSpace = 'local-floor REJECTED: ' + err.message;
+    redrawStatusSprite();
+  });
   session.requestReferenceSpace('viewer').then((space) =>
     session.requestHitTestSource({ space }).then((src) => {
       hitTestSource = src;
