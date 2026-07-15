@@ -457,13 +457,15 @@ renderer3js.setAnimationLoop((_, frame) => {
     }
 
     if (frame.detectedPlanes && state === STATE.SCANNING) {
-      let best = null, bestArea = 0;
+      let best = null, bestArea = 0, bestY = Infinity;
       frame.detectedPlanes.forEach((plane) => {
         if (plane.orientation !== 'horizontal') return;
         const pose = frame.getPose(plane.planeSpace, refSpace);
         if (!pose) return;
         const area = polygonArea(plane.polygon.map((p) => ({ x: p.x, z: p.z })));
-        if (area > 0.5 && area > bestArea) { best = plane; bestArea = area; }
+        if (area < 0.5) return;
+        const y = pose.transform.position.y;
+        if (y < bestY) { best = plane; bestArea = area; bestY = y; }
       });
       if (best) {
         floorPlane = best;
