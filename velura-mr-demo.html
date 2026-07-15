@@ -168,6 +168,7 @@ const renderer3js = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer3js.setPixelRatio(devicePixelRatio);
 renderer3js.setSize(innerWidth, innerHeight);
 renderer3js.xr.enabled = true;
+renderer3js.xr.setReferenceSpaceType('local-floor');
 document.body.appendChild(renderer3js.domElement);
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0x888877, 2.2));
