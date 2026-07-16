@@ -460,11 +460,19 @@ renderer3js.xr.addEventListener('sessionstart', () => {
   renderDebugPanel();
   const session = renderer3js.xr.getSession();
   session.requestReferenceSpace('local-floor').then(() => {
+    renderer3js.xr.setReferenceSpaceType('local-floor');
     persistentInfo.refSpace = 'local-floor (confirmed)';
     redrawStatusSprite();
   }).catch((err) => {
-    persistentInfo.refSpace = 'local-floor REJECTED: ' + err.message;
-    redrawStatusSprite();
+    logLine(`local-floor rejected: ${err.message} — falling back to local`, 'warn');
+    session.requestReferenceSpace('local').then(() => {
+      renderer3js.xr.setReferenceSpaceType('local');
+      persistentInfo.refSpace = 'local (fallback, NOT floor-anchored)';
+      redrawStatusSprite();
+    }).catch((err2) => {
+      persistentInfo.refSpace = 'BOTH REJECTED: ' + err2.message;
+      redrawStatusSprite();
+    });
   });
   session.requestReferenceSpace('viewer').then((space) =>
     session.requestHitTestSource({ space }).then((src) => {
