@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Velura · On Your Floor</title>
+<style>
+:root{--gold:#c9a96e;--ink:#0b0a09;--paper:#f4efe6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--ink);color:var(--paper);font-family:Georgia,'Times New Roman',serif;overflow:hidden}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px}
+#start h1{font-weight:400;letter-spacing:.35em;font-size:28px}
+#start p{opacity:.7;font-size:14px;max-width:300px;line-height:1.5}
+#go{background:none;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font:inherit;letter-spacing:.15em;font-size:14px;border-radius:2px}
+#go:disabled{opacity:.35}
+#overlay{position:fixed;inset:0;display:none;pointer-events:none}
+#hint{position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%);background:rgba(11,10,9,.6);padding:10px 18px;border-radius:20px;font-size:13px;letter-spacing:.04em;white-space:nowrap}
+#close{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:14px;pointer-events:auto;background:rgba(11,10,9,.6);color:var(--paper);border:none;width:36px;height:36px;border-radius:50%;font-size:16px}
+#tray{position:absolute;left:0;right:0;bottom:0;padding:16px 12px calc(env(safe-area-inset-bottom) + 14px);background:linear-gradient(transparent,rgba(11,10,9,.88) 35%);display:flex;gap:12px;overflow-x:auto;pointer-events:auto;transform:translateY(110%);transition:transform .5s ease;scrollbar-width:none}
+#tray.show{transform:none}
+#tray::-webkit-scrollbar{display:none}
+.stone{flex:0 0 auto;width:66px;text-align:center;font-size:10px;background:none;border:none;color:inherit;font-family:inherit;opacity:.85}
+.stone img{width:62px;height:62px;object-fit:cover;border-radius:50%;border:2px solid transparent;display:block;margin:0 auto 6px}
+.stone.on{opacity:1}
+.stone.on img{border-color:var(--gold)}
+.stone span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="start">
+  <h1>VELURA</h1>
+  <p id="support">Checking your phone…</p>
+  <button id="go" disabled>View on my floor</button>
+</div>
+<div id="overlay">
+  <div id="hint"></div>
+  <button id="close" aria-label="Close">✕</button>
+  <div id="tray"></div>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ---------- SETTINGS (real-world metres) ----------
+const TILE_SIZE_M  = 0.60; // one repeat of the photo = one 60 x 60 cm tile. Use the slab width if photos are full slabs.
+const AREA_M       = 4.0;  // size of the marble square laid on the floor
+const FLOOR_BAND_M = 0.15; // surfaces more than 15 cm above the lowest one seen are not treated as floor
+
+const $ = id => document.getElementById(id);
+const start = $('start'), support = $('support'), go = $('go');
+const overlay = $('overlay'), hint = $('hint'), closeBtn = $('close'), tray = $('tray');
+
+// ---------- CATALOGUE ----------
+let stones = [];
+try {
+  stones = await (await fetch('catalog.json', { cache: 'no-cache' })).json();
+} catch (e) {
+  support.textContent = 'Catalogue not found. Run tools/prep_stones.py and push catalog.json + stones/.';
+  throw e;
+}
+const texURL = s => `stones/${s.slug}.jpg`;
+
+let current = 0, walk = null;
+const marbleMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); // unlit = true photo colour
+const loader = new THREE.TextureLoader();
+
+stones.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.className = 'stone';
+  b.innerHTML = `<img src="${s.thumb}" alt="" loading="lazy"><span></span>`;
+  b.querySelector('span').textContent = s.name;
+  b.onclick = () => setStone(i);
+  tray.appendChild(b);
+});
+
+function markTray(i) {
+  tray.querySelectorAll('.stone').forEach((el, j) => el.classList.toggle('on', j === i));
+}
+
+function setStone(i) {
+  current = i;
+  markTray(i);
+  if (walk) { walk.setStone(texURL(stones[i])); return; }
+  loader.load(texURL(stones[i]), t => {
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(AREA_M / TILE_SIZE_M, AREA_M / TILE_SIZE_M);
+    if (marbleMat.map) marbleMat.map.dispose();
+    marbleMat.map = t;
+    marbleMat.needsUpdate = true;
+  });
+}
+
+// ---------- AR (Android Chrome + ARCore) ----------
+async function startAR() {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local');
+  document.body.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.01, 30);
+
+  const reticle = new THREE.Mesh(
+    new THREE.RingGeometry(0.12, 0.15, 48).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xc9a96e })
+  );
+  reticle.matrixAutoUpdate = false;
+  reticle.visible = false;
+  scene.add(reticle);
+
+  const marble = new THREE.Mesh(new THREE.PlaneGeometry(AREA_M, AREA_M).rotateX(-Math.PI / 2), marbleMat);
+  marble.visible = false;
+  scene.add(marble);
+
+  const session = await navigator.xr.requestSession('immersive-ar', {
+    requiredFeatures: ['hit-test'],
+    optionalFeatures: ['dom-overlay'],
+    domOverlay: { root: overlay }
+  });
+  await renderer.xr.setSession(session);
+
+  start.style.display = 'none';
+  overlay.style.display = 'block';
+  hint.textContent = 'Move your phone slowly over the floor';
+
+  const viewer = await session.requestReferenceSpace('viewer');
+  const hitSource = await session.requestHitTestSource({ space: viewer });
+
+  // Taps on the tray or close button must not also place the marble
+  tray.addEventListener('beforexrselect', e => e.preventDefault());
+  closeBtn.addEventListener('beforexrselect', e => e.preventDefault());
+
+  let lowest = Infinity, floorFound = false;
+  const m4 = new THREE.Matrix4(), pos = new THREE.Vector3(), quat = new THREE.Quaternion(), scl = new THREE.Vector3(), up = new THREE.Vector3();
+
+  session.addEventListener('select', () => {
+    if (!reticle.visible) return;
+    marble.position.setFromMatrixPosition(reticle.matrix);
+    const yaw = new THREE.Euler().setFromQuaternion(renderer.xr.getCamera().quaternion, 'YXZ').y;
+    marble.rotation.set(0, yaw, 0); // tiles run square to where you are facing
+    marble.visible = true;
+    hint.textContent = 'Pick a stone below · tap the floor to move it';
+    tray.classList.add('show');
+  });
+
+  closeBtn.onclick = () => session.end();
+  session.addEventListener('end', () => location.reload());
+
+  renderer.setAnimationLoop((t, frame) => {
+    if (frame) {
+      reticle.visible = false;
+      const hits = frame.getHitTestResults(hitSource);
+      if (hits.length) {
+        const pose = hits[0].getPose(renderer.xr.getReferenceSpace());
+        if (pose) {
+          m4.fromArray(pose.transform.matrix).decompose(pos, quat, scl);
+          up.set(0, 1, 0).applyQuaternion(quat);       // surface normal
+          if (up.y > 0.95) {                           // level surfaces only
+            lowest = Math.min(lowest, pos.y);
+            if (pos.y <= lowest + FLOOR_BAND_M) {      // floor, not tables or sofas
+              reticle.matrix.copy(m4);
+              reticle.visible = true;
+              if (!floorFound) { floorFound = true; if (!marble.visible) hint.textContent = 'Floor found · tap to lay the marble'; }
+            }
+          }
+        }
+      }
+    }
+    renderer.render(scene, camera);
+  });
+}
+
+// ---------- START ----------
+const arSupported = !!navigator.xr && await navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
+
+if (arSupported) {
+  support.textContent = 'See the stone on your own floor, at true scale.';
+  go.disabled = false;
+  setStone(0);
+  go.onclick = () => startAR().catch(err => { support.textContent = 'Could not start AR: ' + err.message; });
+} else {
+  // No AR on this phone: walk through a sample home instead
+  const { startWalkthrough } = await import('./walkthrough.js');
+  start.style.display = 'none';
+  overlay.style.display = 'block';
+  closeBtn.style.display = 'none';
+  hint.textContent = 'Tap the floor to walk · drag to look around';
+  tray.classList.add('show');
+  walk = startWalkthrough(texURL(stones[0]));
+  markTray(0);
+}
+</script>
+</body>
+</html>
