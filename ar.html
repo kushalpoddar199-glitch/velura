@@ -8,17 +8,21 @@
 :root{--gold:#c9a96e;--ink:#0b0a09;--paper:#f4efe6}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--ink);color:var(--paper);font-family:Georgia,'Times New Roman',serif;overflow:hidden}
-#start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:24px}
 #start h1{font-weight:400;letter-spacing:.35em;font-size:28px}
 #start p{opacity:.7;font-size:14px;max-width:300px;line-height:1.5}
-#go{background:none;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font:inherit;letter-spacing:.15em;font-size:14px;border-radius:2px}
+#go{background:none;border:1px solid var(--gold);color:var(--gold);padding:16px 34px;font:inherit;letter-spacing:.18em;font-size:14px;border-radius:2px}
 #go:disabled{opacity:.35}
 #overlay{position:fixed;inset:0;display:none;pointer-events:none}
-#hint{position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%);background:rgba(11,10,9,.6);padding:10px 18px;border-radius:20px;font-size:13px;letter-spacing:.04em;white-space:nowrap}
+#hint{position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%);background:rgba(11,10,9,.6);padding:10px 18px;border-radius:20px;font-size:13px;letter-spacing:.04em;white-space:nowrap;transition:opacity .3s}
 #close{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:14px;pointer-events:auto;background:rgba(11,10,9,.6);color:var(--paper);border:none;width:36px;height:36px;border-radius:50%;font-size:16px}
-#tray{position:absolute;left:0;right:0;bottom:0;padding:16px 12px calc(env(safe-area-inset-bottom) + 14px);background:linear-gradient(transparent,rgba(11,10,9,.88) 35%);display:flex;gap:12px;overflow-x:auto;pointer-events:auto;transform:translateY(110%);transition:transform .5s ease;scrollbar-width:none}
-#tray.show{transform:none}
-#tray::-webkit-scrollbar{display:none}
+#picker{position:absolute;left:0;right:0;bottom:0;padding:18px 0 calc(env(safe-area-inset-bottom) + 14px);background:linear-gradient(transparent,rgba(11,10,9,.9) 30%);pointer-events:auto;transform:translateY(110%);transition:transform .5s ease}
+#picker.show{transform:none}
+.row{display:flex;gap:10px;overflow-x:auto;padding:0 14px;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+#types{margin-bottom:14px}
+.type{flex:0 0 auto;background:none;border:1px solid rgba(244,239,230,.3);color:var(--paper);font:inherit;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 16px;border-radius:20px}
+.type.on{border-color:var(--gold);color:var(--gold)}
 .stone{flex:0 0 auto;width:66px;text-align:center;font-size:10px;background:none;border:none;color:inherit;font-family:inherit;opacity:.85}
 .stone img{width:62px;height:62px;object-fit:cover;border-radius:50%;border:2px solid transparent;display:block;margin:0 auto 6px}
 .stone.on{opacity:1}
@@ -30,12 +34,15 @@ html,body{height:100%;background:var(--ink);color:var(--paper);font-family:Georg
 <div id="start">
   <h1>VELURA</h1>
   <p id="support">Checking your phone…</p>
-  <button id="go" disabled>View on my floor</button>
+  <button id="go" disabled>OPEN CAMERA</button>
 </div>
 <div id="overlay">
   <div id="hint"></div>
   <button id="close" aria-label="Close">✕</button>
-  <div id="tray"></div>
+  <div id="picker">
+    <div id="types" class="row"></div>
+    <div id="tray" class="row"></div>
+  </div>
 </div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
@@ -43,44 +50,62 @@ html,body{height:100%;background:var(--ink);color:var(--paper);font-family:Georg
 import * as THREE from 'three';
 
 // ---------- SETTINGS (real-world metres) ----------
-const TILE_SIZE_M  = 0.60; // one repeat of the photo = one 60 x 60 cm tile. Use the slab width if photos are full slabs.
+const TILE_SIZE_M  = 0.60; // one repeat of the photo = one 60 x 60 cm tile
 const AREA_M       = 4.0;  // size of the marble square laid on the floor
-const FLOOR_BAND_M = 0.15; // surfaces more than 15 cm above the lowest one seen are not treated as floor
+const FLOOR_BAND_M = 0.15; // surfaces more than 15 cm above the lowest one seen are not floor
 
 const $ = id => document.getElementById(id);
 const start = $('start'), support = $('support'), go = $('go');
-const overlay = $('overlay'), hint = $('hint'), closeBtn = $('close'), tray = $('tray');
+const overlay = $('overlay'), hint = $('hint'), closeBtn = $('close');
+const picker = $('picker'), typesRow = $('types'), tray = $('tray');
 
 // ---------- CATALOGUE ----------
 let stones = [];
 try {
   stones = await (await fetch('catalog.json', { cache: 'no-cache' })).json();
 } catch (e) {
-  support.textContent = 'Catalogue not found. Run tools/prep_stones.py and push catalog.json + stones/.';
+  support.textContent = 'Catalogue could not load. Please check your connection and reload.';
   throw e;
 }
 const texURL = s => `stones/${s.slug}.jpg`;
+const title = f => f ? f.charAt(0).toUpperCase() + f.slice(1) : 'Other';
 
-let current = 0, walk = null;
+let current = -1, walk = null, onStonePicked = null;
 const marbleMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); // unlit = true photo colour
 const loader = new THREE.TextureLoader();
 
-stones.forEach((s, i) => {
+// Stone buttons
+const stoneBtns = stones.map((s, i) => {
   const b = document.createElement('button');
   b.className = 'stone';
+  b.dataset.family = s.family || '';
   b.innerHTML = `<img src="${s.thumb}" alt="" loading="lazy"><span></span>`;
   b.querySelector('span').textContent = s.name;
   b.onclick = () => setStone(i);
   tray.appendChild(b);
+  return b;
 });
 
-function markTray(i) {
-  tray.querySelectorAll('.stone').forEach((el, j) => el.classList.toggle('on', j === i));
+// Flooring type chips: All + every family in the catalogue
+const families = [...new Set(stones.map(s => s.family || ''))];
+function showType(f) {
+  typesRow.querySelectorAll('.type').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+  stoneBtns.forEach(b => { b.style.display = (f === '*' || b.dataset.family === f) ? '' : 'none'; });
+  tray.scrollLeft = 0;
 }
+['*', ...families].forEach(f => {
+  const c = document.createElement('button');
+  c.className = 'type';
+  c.dataset.f = f;
+  c.textContent = f === '*' ? 'All' : title(f);
+  c.onclick = () => showType(f);
+  typesRow.appendChild(c);
+});
+showType('*');
 
 function setStone(i) {
   current = i;
-  markTray(i);
+  stoneBtns.forEach((b, j) => b.classList.toggle('on', j === i));
   if (walk) { walk.setStone(texURL(stones[i])); return; }
   loader.load(texURL(stones[i]), t => {
     t.colorSpace = THREE.SRGBColorSpace;
@@ -89,6 +114,7 @@ function setStone(i) {
     if (marbleMat.map) marbleMat.map.dispose();
     marbleMat.map = t;
     marbleMat.needsUpdate = true;
+    if (onStonePicked) onStonePicked();
   });
 }
 
@@ -126,26 +152,33 @@ async function startAR() {
 
   start.style.display = 'none';
   overlay.style.display = 'block';
-  hint.textContent = 'Move your phone slowly over the floor';
+  hint.textContent = 'Point at the floor and move slowly';
 
   const viewer = await session.requestReferenceSpace('viewer');
   const hitSource = await session.requestHitTestSource({ space: viewer });
 
-  // Taps on the tray or close button must not also place the marble
-  tray.addEventListener('beforexrselect', e => e.preventDefault());
+  // Taps on the picker or close button must not also move the marble
+  picker.addEventListener('beforexrselect', e => e.preventDefault());
   closeBtn.addEventListener('beforexrselect', e => e.preventDefault());
 
   let lowest = Infinity, floorFound = false;
+  const lastFloor = new THREE.Matrix4();
   const m4 = new THREE.Matrix4(), pos = new THREE.Vector3(), quat = new THREE.Quaternion(), scl = new THREE.Vector3(), up = new THREE.Vector3();
 
-  session.addEventListener('select', () => {
-    if (!reticle.visible) return;
-    marble.position.setFromMatrixPosition(reticle.matrix);
+  function layMarble(matrix) {
+    marble.position.setFromMatrixPosition(matrix);
     const yaw = new THREE.Euler().setFromQuaternion(renderer.xr.getCamera().quaternion, 'YXZ').y;
     marble.rotation.set(0, yaw, 0); // tiles run square to where you are facing
     marble.visible = true;
-    hint.textContent = 'Pick a stone below · tap the floor to move it';
-    tray.classList.add('show');
+    reticle.material.opacity = 0.5;
+    hint.textContent = 'Tap the floor to move it';
+  }
+
+  // First stone picked: lay it on the detected floor straight away
+  onStonePicked = () => { if (!marble.visible && floorFound) layMarble(reticle.visible ? reticle.matrix : lastFloor); };
+
+  session.addEventListener('select', () => {
+    if (reticle.visible && current >= 0) layMarble(reticle.matrix);
   });
 
   closeBtn.onclick = () => session.end();
@@ -164,8 +197,13 @@ async function startAR() {
             lowest = Math.min(lowest, pos.y);
             if (pos.y <= lowest + FLOOR_BAND_M) {      // floor, not tables or sofas
               reticle.matrix.copy(m4);
+              lastFloor.copy(m4);
               reticle.visible = true;
-              if (!floorFound) { floorFound = true; if (!marble.visible) hint.textContent = 'Floor found · tap to lay the marble'; }
+              if (!floorFound) {
+                floorFound = true;
+                hint.textContent = 'Floor found · choose your flooring';
+                picker.classList.add('show');
+              }
             }
           }
         }
@@ -181,8 +219,7 @@ const arSupported = !!navigator.xr && await navigator.xr.isSessionSupported('imm
 if (arSupported) {
   support.textContent = 'See the stone on your own floor, at true scale.';
   go.disabled = false;
-  setStone(0);
-  go.onclick = () => startAR().catch(err => { support.textContent = 'Could not start AR: ' + err.message; });
+  go.onclick = () => startAR().catch(err => { support.textContent = 'Could not open the camera: ' + err.message; });
 } else {
   // No AR on this phone: walk through a sample home instead
   const { startWalkthrough } = await import('./walkthrough.js');
@@ -190,9 +227,10 @@ if (arSupported) {
   overlay.style.display = 'block';
   closeBtn.style.display = 'none';
   hint.textContent = 'Tap the floor to walk · drag to look around';
-  tray.classList.add('show');
+  picker.classList.add('show');
   walk = startWalkthrough(texURL(stones[0]));
-  markTray(0);
+  stoneBtns[0].classList.add('on');
+  current = 0;
 }
 </script>
 </body>
