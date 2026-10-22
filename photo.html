@@ -88,9 +88,58 @@ header{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:
 
 /* ── panel ─────────────────────────────────────────────── */
 #panel{width:var(--panel);flex:none;border-left:1px solid var(--line);background:var(--black-2);display:flex;flex-direction:column;min-height:0}
-.phead{padding:24px 24px 18px;border-bottom:1px solid var(--line)}
-.phead h2{font-family:var(--serif);font-weight:400;font-size:28px;margin-top:8px;line-height:1.15}
-.phead .fam{font-size:12px;color:var(--dim);margin-top:4px;text-transform:capitalize;letter-spacing:.04em}
+.phead{border-bottom:1px solid var(--line);background:var(--black-2)}
+/* hero card for the stone on the floor — same language as the Velura stone cards */
+#feature{position:relative;height:268px;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 24px 22px;isolation:isolate;overflow:hidden}
+#feature .bg{position:absolute;inset:-4%;z-index:-2;background-size:cover;background-position:center;opacity:0;transform:scale(1.08);transition:opacity 1.2s var(--ease),transform 7s cubic-bezier(.2,.6,.2,1)}
+#feature .bg.on{opacity:1;transform:scale(1)}
+#feature:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(5,5,5,.35) 0%,rgba(5,5,5,0) 28%,rgba(5,5,5,.1) 50%,rgba(5,5,5,.86) 100%)}
+#feature .mark{position:absolute;top:20px;left:24px;font-family:var(--serif);letter-spacing:.42em;font-size:12px}
+#feature .meta{position:absolute;top:19px;right:24px;font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;text-align:right;line-height:1.6;color:rgba(245,239,230,.85)}
+#feature h2{font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.02;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+#feature .rule{width:26px;height:1px;background:var(--ivory);margin:14px 0 11px;opacity:.85}
+#feature .persona{font-size:10px;letter-spacing:.26em;text-transform:uppercase;font-weight:500}
+#feature .line{font-size:12px;color:rgba(245,239,230,.8);margin-top:7px;line-height:1.55;max-width:270px}
+#feature .anim{transition:opacity .55s var(--ease),transform .9s var(--ease)}
+#feature .anim:nth-child(4){transition-delay:.05s}#feature .anim:nth-child(5){transition-delay:.1s}#feature .anim:nth-child(6){transition-delay:.15s}
+#feature.swap .anim{opacity:0;transform:translateY(12px);transition-delay:0s}
+.cta{padding:16px 24px 20px}
+.cta #render{margin-top:0}
+
+/* collections */
+#cols{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:6px 24px 0;position:relative;border-bottom:1px solid var(--line)}
+#cols::-webkit-scrollbar{display:none}
+.col{flex:none;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--dim);padding:10px 0 13px;transition:color .3s}
+.col:hover,.col.on{color:var(--ivory)}
+.col sup{font-family:var(--sans);font-style:normal;font-size:9px;letter-spacing:.06em;color:var(--dim);margin-left:3px;vertical-align:super}
+#colLine{position:absolute;bottom:-1px;left:0;width:0;height:1px;background:var(--gold);transition:left .6s var(--ease),width .6s var(--ease)}
+.striphead{display:flex;align-items:center;justify-content:space-between;margin:16px 0 14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+.striphead b{font-weight:400;color:var(--dim-2)}
+.ctl{display:flex;gap:6px}
+.icon{width:30px;height:30px;border:1px solid var(--line-2);border-radius:50%;display:grid;place-items:center;color:var(--dim-2);transition:color .3s,border-color .3s}
+.icon:hover,.icon.on{color:var(--gold);border-color:var(--gold-dim)}
+.icon svg{width:12px;height:12px}
+#searchWrap{max-height:0;overflow:hidden;transition:max-height .5s var(--ease)}
+#searchWrap.open{max-height:64px}
+
+/* slabs */
+#strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px}
+.slab{text-align:left;color:var(--dim-2);font-size:10.5px;line-height:1.35;min-width:0;opacity:0;transform:translateY(14px);animation:rise .8s var(--ease) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.slab .img{display:block;position:relative;aspect-ratio:3/4;border-radius:2px;overflow:hidden;background:#151413;margin-bottom:8px}
+.slab .img i{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 1.4s var(--ease),opacity .7s}
+.slab .img i.lo{filter:blur(8px);transform:scale(1.12)}
+.slab .img i.hi{opacity:0}
+.slab .img i.hi.ready{opacity:1}
+.slab:hover .img i.hi{transform:scale(1.07)}
+.slab .img:after{content:'';position:absolute;inset:0;border:1px solid transparent;border-radius:2px;transition:border-color .4s,box-shadow .4s}
+.slab.on .img:after{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(201,169,110,.35)}
+.slab.on{color:var(--gold)}
+.slab:focus{outline:none}
+.slab:focus-visible .img:after{border-color:var(--dim-2)}
+.slab em{display:block;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slab small{display:block;font-size:9px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slab.loading .img:before{content:'';position:absolute;z-index:2;inset:0;margin:auto;width:18px;height:18px;border:1px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
 .tabs{display:none}
 #render{width:100%;height:48px;margin-top:18px;border-radius:2px;background:var(--gold);color:#140f07;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .3s,opacity .3s}
 #render:hover{background:#d6b984}
@@ -107,21 +156,13 @@ header{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:
 .label span{color:var(--dim-2);letter-spacing:.1em}
 .sec .label+.chips{margin-bottom:20px}
 .sec .chips:last-child{margin-bottom:0}
-#search{width:100%;height:38px;background:transparent;border:none;border-bottom:1px solid var(--line-2);font-size:13px;outline:none;margin-bottom:14px;padding:0 2px}
+#search{width:100%;height:40px;background:transparent;border:none;border-bottom:1px solid var(--line-2);font-size:13px;outline:none;margin-bottom:12px;padding:0 2px}
 #search:focus{border-bottom-color:var(--gold)}
 #search::placeholder{color:var(--dim)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{height:30px;padding:0 12px;border:1px solid var(--line-2);border-radius:999px;font-size:11px;letter-spacing:.06em;color:var(--dim-2);transition:all .25s;white-space:nowrap;text-transform:capitalize}
 .chip:hover{color:var(--ivory);border-color:var(--dim)}
 .chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
-#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
-.stone{text-align:left;font-size:10px;line-height:1.3;color:var(--dim-2);min-width:0}
-.stone .sw{display:block;aspect-ratio:1;border-radius:2px;background-size:cover;background-position:center;outline:1px solid transparent;outline-offset:2px;transition:outline-color .25s,transform .4s var(--ease);margin-bottom:6px;position:relative}
-.stone:hover .sw{transform:scale(1.04)}
-.stone.on .sw{outline-color:var(--gold)}
-.stone.on{color:var(--gold)}
-.stone.loading .sw:after{content:'';position:absolute;inset:0;margin:auto;width:16px;height:16px;border:1px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
-.stone em{display:block;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent}
 input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line-2)}
 input[type=range]::-moz-range-track{height:1px;background:var(--line-2)}
@@ -146,11 +187,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   #fams{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
   #fams::-webkit-scrollbar{display:none}
   #panel{width:auto;height:46vh;border-left:none;border-top:1px solid var(--line)}
-  .phead{padding:14px 16px 10px;display:flex;align-items:baseline;gap:10px}
-  .phead .eyebrow{display:none}
-  .phead h2{font-size:20px;margin:0}
-  .phead{flex-wrap:wrap}
-  #render{flex-basis:100%;margin-top:10px;height:42px}
+  #feature{height:auto;padding:12px 16px 0;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;align-items:baseline;gap:4px 12px}
+  #feature .bg,#feature:after,#feature .mark,#feature .meta,#feature .rule,#feature .line{display:none}
+  #feature h2{font-size:21px;text-shadow:none}
+  #feature .persona{font-size:9px;color:var(--gold)}
+  .cta{padding:10px 16px 12px}
+  #render{height:42px}
+  #cols{margin:0 -16px;padding:2px 16px 0;gap:18px}
+  .col{font-size:15px;padding:8px 0 10px}
+  .striphead{display:none}
+  #strip{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:14px calc(50vw - 17vw) 6px;-webkit-overflow-scrolling:touch}
+  #strip::-webkit-scrollbar{display:none}
+  .slab{flex:none;width:34vw;padding:0 2.2vw;scroll-snap-align:center;text-align:center;animation:none;opacity:1;transform:none;transition:transform .25s ease-out,opacity .25s}
+  .slab .img{margin-bottom:8px;aspect-ratio:4/5}
   .tabs{display:flex;padding:0 16px;gap:22px;border-bottom:1px solid var(--line)}
   .tab{height:38px;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid transparent;margin-bottom:-1px}
   .tab.on{color:var(--gold);border-bottom-color:var(--gold)}
@@ -158,7 +207,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   #panel[data-tab=stone] #secLayout,#panel[data-tab=stone] #secFine{display:none}
   #panel[data-tab=layout] #secStone{display:none}
   .sec{padding:14px 0}
-  #grid{grid-template-columns:repeat(5,1fr);gap:8px}
   .tips{grid-template-columns:1fr}
 }
 </style>
@@ -227,17 +275,29 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
   <aside id="panel" data-tab="stone">
     <div class="phead">
-      <div class="eyebrow">On your floor</div>
-      <h2 id="stoneName">—</h2>
-      <div class="fam" id="stoneFam"></div>
-      <button id="render" disabled><span id="renderLbl">Render photoreal</span><small id="renderSub">about 20 sec</small></button>
+      <div id="feature">
+        <div class="mark">VELURA</div>
+        <div class="meta">Natural stone<br>Timeless spaces</div>
+        <h2 class="anim" id="stoneName">—</h2>
+        <div class="rule anim"></div>
+        <div class="persona anim" id="stonePersona"></div>
+        <div class="line anim" id="stoneLine"></div>
+      </div>
+      <div class="cta"><button id="render" disabled><span id="renderLbl">Render photoreal</span><small id="renderSub">about 20 sec</small></button></div>
     </div>
     <div class="tabs"><button class="tab on" data-tab="stone">Stone</button><button class="tab" data-tab="layout">Layout</button></div>
     <div class="pbody">
       <div class="sec" id="secStone">
-        <input id="search" placeholder="Search the collection" autocomplete="off">
-        <div class="chips" id="fams"></div>
-        <div id="grid"></div>
+        <div id="cols"><i id="colLine"></i></div>
+        <div class="striphead"><span id="count"></span>
+          <div class="ctl">
+            <button class="icon" id="btnSearch" title="Search"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="5" cy="5" r="3.6"/><path d="M7.7 7.7 11 11"/></svg></button>
+            <button class="icon" id="btnPrev" title="Previous stone (←)"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7.5 2 3.5 6l4 4"/></svg></button>
+            <button class="icon" id="btnNext" title="Next stone (→)"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="m4.5 2 4 4-4 4"/></svg></button>
+          </div>
+        </div>
+        <div id="searchWrap"><input id="search" placeholder="Search 160 stones" autocomplete="off"></div>
+        <div id="strip"></div>
       </div>
       <div class="sec" id="secLayout">
         <div class="label">Format</div><div class="chips" id="sizes"></div>
@@ -301,7 +361,7 @@ const S = {
   W: 0, H: 0, rgba: null, mask: null, catalog: [], stone: null, tex: new Map(),
   size: SIZES[1], pattern: 0, finish: FINISHES[0], angle: 0, offset: [0, 0],
   horizon: 0, roll: 0, light: .85, vein: 1, tool: 'none', split: .5, brush: 'add',
-  floorMean: .5, exposure: 1, family: 'all', query: '', ready: false, maskVer: 0, photoId: 0, ai: null, rendering: false,
+  floorMean: .5, exposure: 1, family: 'all', query: '', ready: false, maskVer: 0, photoId: 0, ai: null, rendering: false, mix: 1, prevTex: null, list: [],
 };
 
 /* ── utilities ───────────────────────────────────────────── */
@@ -380,14 +440,23 @@ void main(){ vUv = p*.5+.5; vUv.y = 1.-vUv.y; gl_Position = vec4(p,0,1); }`;
 const FS = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
-uniform sampler2D uOrig, uMask, uIllum, uDist, uRefl, uStone;
+uniform sampler2D uOrig, uMask, uIllum, uDist, uRefl, uStone, uPrev;
 uniform vec2 uRes, uTile, uSlab, uOffset;
-uniform float uF, uTheta, uRoll, uCamH, uAngle, uGloss, uLight, uExposure, uSplit, uJoint, uHasStone;
+uniform float uF, uTheta, uRoll, uCamH, uAngle, uGloss, uLight, uExposure, uSplit, uJoint, uHasStone, uMix, uHasPrev;
 uniform int uPattern;
 
 float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
 vec3 toLin(vec3 c){ return pow(c, vec3(2.2)); }
 vec3 toSrgb(vec3 c){ return pow(max(c,0.), vec3(1./2.2)); }
+
+// shared per-pixel terms
+float gJoint, gL, gW; vec3 gRefl;
+vec3 finishStone(vec3 stone, vec3 meanLin){
+  stone = mix(stone, meanLin*.62, gJoint*.85);
+  vec3 col = stone*mix(1., gL, uLight)*uExposure;
+  col = mix(col, gRefl, clamp(gW, 0., .6));
+  return toSrgb(col);
+}
 
 void main(){
   vec4 orig = texture(uOrig, vUv);
@@ -418,33 +487,45 @@ void main(){
   if (uPattern == 2) { key = floor(cell*.5); vec2 odd = mod(cell, 2.); fl = mix(f, 1.-f, odd); }
   vec2 org = vec2(hash(key), hash(key + 17.17))*(1. - win);
   vec2 suv = org + fl*win;
-  vec2 gc = g*win;
-  vec3 stone = textureGrad(uStone, suv, dFdx(gc), dFdy(gc)).rgb;
-  vec3 mean = textureLod(uStone, vec2(.5), 12.).rgb;
-  stone = toLin(stone)*(1. + (hash(cell + 3.1) - .5)*.05);
+  vec2 gc = g*win, gx = dFdx(gc), gy = dFdy(gc);
+  float tv = 1. + (hash(cell + 3.1) - .5)*.05;
 
   // joints
   vec2 aa = fwidth(gs)*.75 + 1e-5;
   vec2 e = min(f, 1.-f);
   vec2 jw = vec2(uJoint)/uTile*.5;
   vec2 ln = 1. - smoothstep(jw, jw + aa, e);
-  float joint = max(ln.x, ln.y)*clamp(1. - 6.*max(aa.x, aa.y), 0., 1.);
-  stone = mix(stone, toLin(mean)*.62, joint*.85);
+  gJoint = max(ln.x, ln.y)*clamp(1. - 6.*max(aa.x, aa.y), 0., 1.);
 
   // room light + shadows
-  float L = texture(uIllum, vUv).r*2.;
-  vec3 col = stone*mix(1., L, uLight)*uExposure;
+  gL = texture(uIllum, vUv).r*2.;
 
   // polished reflection: mirror the room about where the floor meets it
   float d = texture(uDist, vUv).r;
   float ry = px.y - 2.*d;
-  vec3 refl = toLin(texture(uRefl, vec2(vUv.x, max(ry, 0.)/uRes.y)).rgb);
+  gRefl = toLin(texture(uRefl, vec2(vUv.x, max(ry, 0.)/uRes.y)).rgb);
   float cosA = clamp(den/length(vec3(u, v, uF)), 0., 1.);
   float fres = .04 + .6*pow(1. - cosA, 3.);
-  float w = uGloss*fres*exp(-d/(.3*uRes.y))*smoothstep(0., .04*uRes.y, ry);
-  col = mix(col, refl, clamp(w, 0., .6));
+  gW = uGloss*fres*exp(-d/(.3*uRes.y))*smoothstep(0., .04*uRes.y, ry);
 
-  vec3 res = toSrgb(col);
+  vec3 res = finishStone(toLin(textureGrad(uStone, suv, gx, gy).rgb)*tv, toLin(textureLod(uStone, vec2(.5), 12.).rgb));
+
+  // reveal: tiles are laid one by one, from near the camera outward, with a soft gold glint
+  if (uMix < .999) {
+    vec3 old = uHasPrev > .5
+      ? finishStone(toLin(textureGrad(uPrev, suv, gx, gy).rgb)*tv, toLin(textureLod(uPrev, vec2(.5), 12.).rgb))
+      : orig.rgb;
+    vec2 cq = (cell + .5)*uTile;
+    if (uPattern == 1) cq.x -= .5*uTile.x*mod(cell.y, 2.);
+    cq -= uOffset;
+    float zc = -sa*cq.x + ca*cq.y;                      // tile centre distance from camera (m)
+    float order = clamp(zc/9., 0., 1.)*.72 + hash(cell + 7.3)*.28;
+    float tt = uMix*1.32 - order;
+    float k = smoothstep(0., .1, tt);
+    float glint = exp(-pow((tt - .05)/.03, 2.))*(1. - smoothstep(.75, 1., uMix));
+    res = mix(old, res, k) + vec3(1., .88, .66)*glint*.12;
+  }
+
   o = vec4(mix(orig.rgb, res, m*vis), 1.);
 }`;
 
@@ -459,9 +540,9 @@ function initGL() {
   const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  for (const n of ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uRes', 'uTile', 'uSlab', 'uOffset', 'uF', 'uTheta', 'uRoll', 'uCamH', 'uAngle', 'uGloss', 'uLight', 'uExposure', 'uSplit', 'uJoint', 'uHasStone', 'uPattern'])
+  for (const n of ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uRes', 'uTile', 'uSlab', 'uOffset', 'uF', 'uTheta', 'uRoll', 'uCamH', 'uAngle', 'uGloss', 'uLight', 'uExposure', 'uSplit', 'uJoint', 'uHasStone', 'uPattern', 'uPrev', 'uMix', 'uHasPrev'])
     U[n] = gl.getUniformLocation(prog, n);
-  ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone'].forEach((n, i) => gl.uniform1i(U[n], i));
+  ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uPrev'].forEach((n, i) => gl.uniform1i(U[n], i));
   aniso = gl.getExtension('EXT_texture_filter_anisotropic');
   return true;
 }
@@ -534,6 +615,9 @@ function draw() {
     gl.uniform2f(U.uTile, tw, tl);
     gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, st.tex);
   }
+  gl.uniform1f(U.uMix, S.mix);
+  gl.uniform1f(U.uHasPrev, S.prevTex ? 1 : 0);
+  if (S.prevTex) { gl.activeTexture(gl.TEXTURE6); gl.bindTexture(gl.TEXTURE_2D, S.prevTex.tex); }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
@@ -572,7 +656,8 @@ async function loadPhoto(blobOrUrl) {
   hud(false);
   if (!ok) { setTool('brush'); return; }
   autoAlign();
-  pushMask(); prepLight(); prepDist(); render();
+  pushMask(); prepLight(); prepDist();
+  reveal(null);
   if (!window.__veluraTest) toast('Floor found. Try a few stones — Refine edges if anything is off.');
 }
 
@@ -774,37 +859,160 @@ function autoAlign() {
   $('angle').value = S.angle; syncLabels();
 }
 
-/* ── catalogue ───────────────────────────────────────────── */
+/* ── catalogue & stone picker ────────────────────────────── */
+const COLLECTIONS = { all: 'All', white: 'Whites', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
+const PERSONA = {
+  white: ['The quiet statement', 'Luminous, sculptural and timeless. For spaces that don’t need to shout.'],
+  grey: ['The modern classic', 'Composed and architectural. Sleek, for contemporary living.'],
+  beige: ['The everlasting warmth', 'Soft, refined and versatile — a natural warm canvas for every space.'],
+  onyx: ['The illuminated one', 'Translucent, luminous and rare. For spaces that feel alive.'],
+  gold: ['The maximalist', 'Dramatic, expressive and impossible to ignore.'],
+  green: ['The unconventional one', 'Bold, organic and unapologetically distinctive.'],
+  blue: ['The unexpected', 'Cool depth and quiet drama, for spaces that dare.'],
+  pink: ['The romantic', 'Blush tones with quiet confidence. Soft, never sweet.'],
+};
+const HEROES = [
+  [/statuario/i, 'The iconic one', 'Classic, elegant and refined. A timeless choice for enduring spaces.'],
+  [/calacatta/i, 'The quiet statement', 'Clean, sculptural and timeless. Bold veins on a luminous ground.'],
+  [/emperador/i, 'The old soul', 'Rich, grounded and warm. For interiors with depth and character.'],
+  [/travertin|tvt/i, 'The understated minimalist', 'Earthy, tactile and effortlessly warm.'],
+  [/portoro|black|nero|marquina/i, 'The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
+  [/crema|marfil/i, 'The everlasting essence', 'Soft, refined and versatile. A natural warm canvas.'],
+  [/amazon/i, 'The rare one', 'Ocean light held in stone. A collector’s surface.'],
+];
+function personaOf(s) {
+  for (const [re, a, b] of HEROES) if (re.test(s.name)) return [a, b];
+  return PERSONA[s.family] || ['The natural one', 'Shaped by the earth over millions of years.'];
+}
+
 async function loadCatalog() {
   try { S.catalog = await (await fetch('catalog.json')).json(); }
   catch (e) { toast('Could not load the stone collection.'); S.catalog = []; }
-  const fams = ['all', ...new Set(S.catalog.map(s => s.family))];
-  $('fams').innerHTML = fams.map(f => `<button class="chip${f === 'all' ? ' on' : ''}" data-fam="${f}">${f === 'all' ? 'All' : f}</button>`).join('');
-  drawGrid();
+  const counts = {}; S.catalog.forEach(s => counts[s.family] = (counts[s.family] || 0) + 1);
+  const fams = ['all', ...Object.keys(COLLECTIONS).filter(f => f !== 'all' && counts[f]), ...Object.keys(counts).filter(f => !COLLECTIONS[f])];
+  $('cols').insertAdjacentHTML('afterbegin', fams.map(f =>
+    `<button class="col${f === 'all' ? ' on' : ''}" data-fam="${f}">${COLLECTIONS[f] || f}<sup>${f === 'all' ? S.catalog.length : counts[f]}</sup></button>`).join(''));
+  drawStrip();
+  requestAnimationFrame(moveColLine);
   const first = S.catalog.find(s => s.slug === 'statuario') || S.catalog[0];
-  if (first) selectStone(first);
+  if (first) selectStone(first, { scroll: true });
 }
-function drawGrid() {
+function moveColLine() {
+  const on = $('cols').querySelector('.col.on'), line = $('colLine'); if (!on) return;
+  line.style.left = on.offsetLeft + 'px'; line.style.width = on.offsetWidth + 'px';
+}
+let lazyObs;
+function drawStrip() {
   const q = S.query.trim().toLowerCase();
-  const list = S.catalog.filter(s => (S.family === 'all' || s.family === S.family) && (!q || s.name.toLowerCase().includes(q)));
-  $('grid').innerHTML = list.length ? list.map(s =>
-    `<button class="stone${S.stone && S.stone.slug === s.slug ? ' on' : ''}" data-slug="${s.slug}" title="${s.name}"><span class="sw" style="background-image:url('${s.thumb}')"></span><em>${s.name}</em></button>`
+  S.list = S.catalog.filter(s => (S.family === 'all' || s.family === S.family) && (!q || s.name.toLowerCase().includes(q) || s.family.includes(q)));
+  const strip = $('strip');
+  strip.innerHTML = S.list.length ? S.list.map((s, i) =>
+    `<button class="slab${S.stone && S.stone.slug === s.slug ? ' on' : ''}" data-slug="${s.slug}" style="animation-delay:${Math.min(i, 14) * 35}ms">` +
+    `<span class="img"><i class="lo" style="background-image:url('${s.thumb}')"></i><i class="hi" data-src="stones/${s.slug}.jpg"></i></span>` +
+    `<em>${s.name}</em><small>${personaOf(s)[0]}</small></button>`
   ).join('') : '<div class="empty">No stones match.</div>';
+  updateCount();
+  // sharp slab photos load only as they come into view
+  if (lazyObs) lazyObs.disconnect();
+  lazyObs = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const i = e.target, src = i.dataset.src; lazyObs.unobserve(i);
+    const im = new Image(); im.onload = () => { i.style.backgroundImage = `url('${src}')`; i.classList.add('ready'); }; im.src = src;
+  }), { root: null, rootMargin: '200px' });
+  strip.querySelectorAll('i.hi').forEach(i => lazyObs.observe(i));
+  coverflow();
+}
+function updateCount() {
+  const i = S.stone ? S.list.findIndex(s => s.slug === S.stone.slug) : -1;
+  $('count').innerHTML = S.list.length ? `<b>${i >= 0 ? String(i + 1).padStart(2, '0') : '—'}</b> / ${String(S.list.length).padStart(2, '0')} · ${COLLECTIONS[S.family] || S.family}` : '';
+}
+function showFeature(s) {
+  const f = $('feature'), [persona, line] = personaOf(s);
+  f.classList.add('swap');
+  setTimeout(() => {
+    $('stoneName').textContent = s.name; $('stonePersona').textContent = persona; $('stoneLine').textContent = line;
+    f.classList.remove('swap');
+  }, 260);
+  const bg = document.createElement('div'); bg.className = 'bg'; bg.style.backgroundImage = `url('${s.thumb}')`;
+  f.prepend(bg);
+  const im = new Image(); im.onload = () => { bg.style.backgroundImage = `url('stones/${s.slug}.jpg')`; }; im.src = `stones/${s.slug}.jpg`;
+  requestAnimationFrame(() => requestAnimationFrame(() => bg.classList.add('on')));
+  const olds = f.querySelectorAll('.bg'); olds.forEach((o, i) => { if (i > 0) { o.classList.remove('on'); setTimeout(() => o.remove(), 1300); } });
 }
 function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
-async function selectStone(s) {
-  S.stone = s;
-  $('stoneName').textContent = s.name; $('stoneFam').textContent = s.family + ' · natural stone';
-  document.querySelectorAll('.stone').forEach(b => b.classList.toggle('on', b.dataset.slug === s.slug));
+let selSeq = 0;
+async function selectStone(s, opt = {}) {
+  if (!s) return;
+  const seq = ++selSeq, prev = S.stone && S.tex.get(S.stone.slug);
+  if (S.stone && S.stone.slug === s.slug) return;
+  showFeature(s);
+  document.querySelectorAll('.slab').forEach(b => b.classList.toggle('on', b.dataset.slug === s.slug));
+  const btn = document.querySelector(`.slab[data-slug="${s.slug}"]`);
+  if (opt.scroll && btn) centerSlab(btn, opt.instant);
   if (!S.tex.has(s.slug)) {
-    const btn = document.querySelector(`.stone[data-slug="${s.slug}"]`); btn && btn.classList.add('loading');
-    try {
-      const img = await loadImage(`stones/${s.slug}.jpg`);
-      S.tex.set(s.slug, stoneTexture(img));
-    } catch (e) { toast('That stone image could not be loaded.'); }
+    btn && btn.classList.add('loading');
+    try { S.tex.set(s.slug, stoneTexture(await loadImage(`stones/${s.slug}.jpg`))); }
+    catch (e) { toast('That stone image could not be loaded.'); }
     btn && btn.classList.remove('loading');
   }
-  if (S.stone === s) render(); else syncAI(aiActive());
+  if (seq !== selSeq) return;                 // a newer pick won
+  S.stone = s; updateCount();
+  if (prev && S.ready && S.mix >= 1) reveal(prev); else render();
+  syncAI(aiActive());
+}
+/* cinematic reveal: the new stone is laid tile by tile over the old floor */
+let revealRaf = 0;
+function reveal(prevTex) {
+  cancelAnimationFrame(revealRaf);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { S.mix = 1; S.prevTex = null; render(); return; }
+  S.prevTex = prevTex; S.mix = 0;
+  const t0 = performance.now(), dur = prevTex ? 1300 : 1900;
+  const step = now => {
+    const x = Math.min(1, (now - t0) / dur);
+    S.mix = x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    draw();
+    if (x < 1) revealRaf = requestAnimationFrame(step); else { S.prevTex = null; S.mix = 1; draw(); }
+  };
+  revealRaf = requestAnimationFrame(step);
+}
+function stepStone(d) {
+  if (!S.list.length) return;
+  const i = S.stone ? S.list.findIndex(s => s.slug === S.stone.slug) : -1;
+  selectStone(S.list[(i + d + S.list.length) % S.list.length], { scroll: true });
+}
+
+/* phone: swipe through slabs like a coverflow; the one that settles in the centre goes on the floor */
+const isPhone = () => innerWidth <= 860;
+function centerSlab(btn, instant) {
+  if (isPhone()) {
+    const strip = $('strip');
+    strip.scrollTo({ left: btn.offsetLeft - (strip.clientWidth - btn.offsetWidth) / 2, behavior: instant ? 'auto' : 'smooth' });
+  } else btn.scrollIntoView({ block: 'nearest', behavior: instant ? 'auto' : 'smooth' });
+}
+function coverflow() {
+  const strip = $('strip'), slabs = strip.querySelectorAll('.slab');
+  if (!isPhone()) { slabs.forEach(b => { b.style.transform = ''; b.style.opacity = ''; }); return; }
+  const mid = strip.scrollLeft + strip.clientWidth / 2;
+  slabs.forEach(b => {
+    const d = Math.min(1.6, Math.abs(b.offsetLeft + b.offsetWidth / 2 - mid) / b.offsetWidth);
+    b.style.transform = `scale(${1 - d * .13}) translateY(${d * 6}px)`;
+    b.style.opacity = String(1 - d * .38);
+  });
+}
+let flowRaf = 0, settleT = 0;
+function onStripScroll() {
+  if (!isPhone()) return;
+  if (!flowRaf) flowRaf = requestAnimationFrame(() => { flowRaf = 0; coverflow(); });
+  clearTimeout(settleT);
+  settleT = setTimeout(() => {
+    const strip = $('strip'), mid = strip.scrollLeft + strip.clientWidth / 2;
+    let best = null, bd = 1e9;
+    strip.querySelectorAll('.slab').forEach(b => { const d = Math.abs(b.offsetLeft + b.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = b; } });
+    if (best && (!S.stone || best.dataset.slug !== S.stone.slug)) {
+      selectStone(S.catalog.find(s => s.slug === best.dataset.slug));
+      if (navigator.vibrate) try { navigator.vibrate(8); } catch (e) { }
+    }
+  }, 160);
 }
 
 /* ── controls ────────────────────────────────────────────── */
@@ -1040,9 +1248,25 @@ function boot() {
   $('btnSave').onclick = save; $('btnShare').onclick = share; $('render').onclick = doRender;
   $('tools').onclick = e => { const b = e.target.closest('.tool'); if (b) setTool(b.dataset.tool); };
   $('brushBar').onclick = e => { const b = e.target.closest('[data-brush]'); if (!b) return; S.brush = b.dataset.brush; document.querySelectorAll('[data-brush]').forEach(c => c.classList.toggle('on', c === b)); };
-  $('fams').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; S.family = b.dataset.fam; $('fams').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); drawGrid(); };
-  $('search').oninput = e => { S.query = e.target.value; drawGrid(); };
-  $('grid').onclick = e => { const b = e.target.closest('.stone'); if (b) selectStone(S.catalog.find(s => s.slug === b.dataset.slug)); };
+  $('cols').onclick = e => {
+    const b = e.target.closest('.col'); if (!b) return;
+    S.family = b.dataset.fam; $('cols').querySelectorAll('.col').forEach(c => c.classList.toggle('on', c === b));
+    moveColLine(); b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    drawStrip();
+    const keep = S.stone && S.list.find(s => s.slug === S.stone.slug);
+    if (keep) { const el = document.querySelector(`.slab[data-slug="${keep.slug}"]`); el && centerSlab(el, true); }
+    else if (S.list[0]) { $('strip').scrollTo({ left: 0 }); selectStone(S.list[0], { scroll: true, instant: true }); }
+  };
+  $('search').oninput = e => { S.query = e.target.value; drawStrip(); };
+  $('btnSearch').onclick = () => { const w = $('searchWrap'), on = !w.classList.contains('open'); w.classList.toggle('open', on); $('btnSearch').classList.toggle('on', on); if (on) setTimeout(() => $('search').focus(), 200); else if (S.query) { S.query = ''; $('search').value = ''; drawStrip(); } };
+  $('btnPrev').onclick = () => stepStone(-1); $('btnNext').onclick = () => stepStone(1);
+  $('strip').onclick = e => { const b = e.target.closest('.slab'); if (b) selectStone(S.catalog.find(s => s.slug === b.dataset.slug), { scroll: true }); };
+  $('strip').addEventListener('scroll', onStripScroll, { passive: true });
+  addEventListener('keydown', e => {
+    if (e.target.matches('input') || $('studio').classList.contains('hidden')) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); stepStone(1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); stepStone(-1); }
+  });
+  addEventListener('resize', () => { moveColLine(); const on = document.querySelector('.slab.on'); on && centerSlab(on, true); coverflow(); });
   $('angle').oninput = e => { S.angle = +e.target.value; syncLabels(); render(); };
   $('roll').oninput = e => { S.roll = +e.target.value * Math.PI / 180; syncLabels(); render(); };
   $('light').oninput = e => { S.light = +e.target.value / 100; syncLabels(); render(); };
