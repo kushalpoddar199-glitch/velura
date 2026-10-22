@@ -1,0 +1,19 @@
+name = "velura-render"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# Sites allowed to call the render API (comma-separated, no trailing slash)
+ALLOWED_ORIGINS = "https://kushalpoddar199-glitch.github.io,https://velurastudio.in,https://www.velurastudio.in,http://localhost:8765"
+MODEL = "fal-ai/nano-banana-2/edit"
+RESOLUTION = "1K"
+DAILY_PER_IP = "15"
+DAILY_TOTAL = "300"
+
+# Usage limits. Create once with:  npx wrangler kv namespace create RATE
+# then paste the id it prints below and uncomment.
+# [[kv_namespaces]]
+# binding = "RATE"
+# id = "PASTE_ID_HERE"
+
+# Secret (never commit it):  npx wrangler secret put FAL_KEY

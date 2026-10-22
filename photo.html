@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Velura · Your Room</title>
+<meta name="description" content="Upload a photo of your room and see any Velura stone on your floor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#050505;--black-2:#0b0b0a;--black-3:#141312;--line:rgba(245,239,230,.10);--line-2:rgba(245,239,230,.18);
+  --ivory:#f5efe6;--dim:rgba(245,239,230,.45);--dim-2:rgba(245,239,230,.68);
+  --gold:#c9a96e;--gold-dim:rgba(201,169,110,.45);--gold-glow:rgba(201,169,110,.12);
+  --serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);--panel:380px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:var(--black);color:var(--ivory);font-family:var(--sans);font-weight:300;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input{font:inherit;color:inherit}
+.eyebrow{font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
+.hidden{display:none!important}
+
+/* ── top bar ───────────────────────────────────────────── */
+header{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;padding-top:env(safe-area-inset-top);z-index:20;border-bottom:1px solid var(--line);background:rgba(5,5,5,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:baseline;gap:14px;text-decoration:none;color:inherit}
+.brand b{font-family:var(--serif);font-weight:400;letter-spacing:.42em;font-size:17px}
+.brand span{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+.actions{display:flex;gap:6px}
+.btn{height:36px;padding:0 16px;border:1px solid var(--line-2);border-radius:999px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;transition:border-color .3s,color .3s,background .3s}
+.btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#140f07;font-weight:500}
+.btn.solid:hover{background:#d6b984;color:#140f07}
+.btn svg{width:14px;height:14px}
+
+/* ── empty state ───────────────────────────────────────── */
+#intro{position:fixed;inset:60px 0 0 0;display:grid;place-items:center;padding:24px;overflow:auto}
+#intro .wrap{max-width:620px;text-align:center}
+#intro h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,6vw,62px);line-height:1.05;margin:18px 0 18px}
+#intro h1 em{font-style:italic;color:var(--gold)}
+#intro p.lead{color:var(--dim-2);font-size:15px;line-height:1.7;max-width:460px;margin:0 auto 36px}
+#drop{display:block;border:1px dashed var(--gold-dim);border-radius:4px;padding:42px 24px;cursor:pointer;transition:background .4s,border-color .4s;position:relative}
+#drop:hover,#drop.over{background:var(--gold-glow);border-color:var(--gold)}
+#drop .big{font-family:var(--serif);font-size:22px;margin-bottom:8px}
+#drop .small{font-size:12px;color:var(--dim);letter-spacing:.04em}
+#drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;text-align:left}
+.tips div{border-top:1px solid var(--line);padding-top:12px;font-size:12px;line-height:1.6;color:var(--dim)}
+.tips b{display:block;font-weight:400;color:var(--ivory);font-size:12px;margin-bottom:4px;letter-spacing:.02em}
+.privacy{margin-top:28px;font-size:11px;color:var(--dim);letter-spacing:.06em}
+
+/* ── studio ────────────────────────────────────────────── */
+#studio{position:fixed;inset:60px 0 0 0;display:flex}
+#stage{flex:1;position:relative;display:grid;place-items:center;padding:28px 28px 96px;min-width:0;background:radial-gradient(ellipse at 50% 40%,#101010,#050505 70%)}
+#canvasWrap{position:relative;max-width:100%;max-height:100%;line-height:0;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+#gl{display:block;max-width:100%;max-height:calc(100vh - 60px - 124px);touch-action:none;border-radius:2px}
+#overlay{position:absolute;inset:0;pointer-events:none}
+#divider{position:absolute;top:0;bottom:0;width:1px;background:var(--ivory);box-shadow:0 0 12px rgba(0,0,0,.6)}
+#divider i{position:absolute;top:50%;left:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:rgba(5,5,5,.7);border:1px solid var(--ivory);backdrop-filter:blur(6px)}
+#divider i:before,#divider i:after{content:'';position:absolute;top:50%;width:0;height:0;border:5px solid transparent;margin-top:-5px}
+#divider i:before{left:7px;border-right-color:var(--ivory)}
+#divider i:after{right:7px;border-left-color:var(--ivory)}
+.tagL,.tagR{position:absolute;top:14px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;padding:6px 10px;background:rgba(5,5,5,.55);border-radius:2px;backdrop-filter:blur(6px)}
+.tagL{left:14px}.tagR{right:14px;color:var(--gold)}
+#horizon{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--gold)}
+#horizon span{position:absolute;right:10px;top:-26px;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);background:rgba(5,5,5,.6);padding:4px 8px}
+#brushRing{position:absolute;border:1px solid var(--ivory);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+
+#tools{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;gap:2px;padding:5px;background:rgba(14,13,12,.86);border:1px solid var(--line);border-radius:999px;backdrop-filter:blur(14px);z-index:5}
+.tool{height:40px;padding:0 16px;border-radius:999px;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim-2);transition:background .3s,color .3s;white-space:nowrap}
+.tool svg{width:16px;height:16px;flex:none}
+.tool:hover{color:var(--ivory)}
+.tool.on{background:var(--ivory);color:#0b0a09}
+#brushBar{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:6px 8px 6px 6px;background:rgba(14,13,12,.9);border:1px solid var(--line);border-radius:999px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;z-index:5}
+#brushBar input{width:110px}
+#brushBar .chips{flex-wrap:nowrap}
+
+#hud{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,5,5,.72);backdrop-filter:blur(6px);z-index:8;text-align:center}
+#hud .t{font-family:var(--serif);font-size:24px;margin:16px 0 8px}
+#hud .s{font-size:12px;color:var(--dim);letter-spacing:.05em;min-height:18px}
+.bar{width:220px;height:1px;background:var(--line-2);margin:18px auto 0;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+.spin{width:28px;height:28px;margin:0 auto;border:1px solid var(--line-2);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;top:78px;transform:translate(-50%,-8px);opacity:0;background:var(--black-3);border:1px solid var(--line-2);padding:12px 18px;border-radius:3px;font-size:12px;letter-spacing:.03em;z-index:40;transition:opacity .4s,transform .4s var(--ease);max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ── panel ─────────────────────────────────────────────── */
+#panel{width:var(--panel);flex:none;border-left:1px solid var(--line);background:var(--black-2);display:flex;flex-direction:column;min-height:0}
+.phead{padding:24px 24px 18px;border-bottom:1px solid var(--line)}
+.phead h2{font-family:var(--serif);font-weight:400;font-size:28px;margin-top:8px;line-height:1.15}
+.phead .fam{font-size:12px;color:var(--dim);margin-top:4px;text-transform:capitalize;letter-spacing:.04em}
+.tabs{display:none}
+#render{width:100%;height:48px;margin-top:18px;border-radius:2px;background:var(--gold);color:#140f07;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .3s,opacity .3s}
+#render:hover{background:#d6b984}
+#render:disabled{opacity:.4;cursor:default}
+#render small{font-size:10px;letter-spacing:.08em;opacity:.65;font-weight:400;text-transform:none}
+#render.done{background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
+#aiCv{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;border-radius:2px}
+#modeTag{position:absolute;left:14px;bottom:14px;font-size:10px;letter-spacing:.28em;text-transform:uppercase;padding:6px 10px;background:rgba(5,5,5,.55);border-radius:2px;backdrop-filter:blur(6px);color:var(--dim-2)}
+#modeTag.ai{color:var(--gold)}
+.pbody{overflow-y:auto;flex:1;padding:0 24px 32px;scrollbar-width:thin;scrollbar-color:#2a2a2a transparent}
+.sec{padding:20px 0;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:none}
+.label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.label span{color:var(--dim-2);letter-spacing:.1em}
+.sec .label+.chips{margin-bottom:20px}
+.sec .chips:last-child{margin-bottom:0}
+#search{width:100%;height:38px;background:transparent;border:none;border-bottom:1px solid var(--line-2);font-size:13px;outline:none;margin-bottom:14px;padding:0 2px}
+#search:focus{border-bottom-color:var(--gold)}
+#search::placeholder{color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:30px;padding:0 12px;border:1px solid var(--line-2);border-radius:999px;font-size:11px;letter-spacing:.06em;color:var(--dim-2);transition:all .25s;white-space:nowrap;text-transform:capitalize}
+.chip:hover{color:var(--ivory);border-color:var(--dim)}
+.chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.stone{text-align:left;font-size:10px;line-height:1.3;color:var(--dim-2);min-width:0}
+.stone .sw{display:block;aspect-ratio:1;border-radius:2px;background-size:cover;background-position:center;outline:1px solid transparent;outline-offset:2px;transition:outline-color .25s,transform .4s var(--ease);margin-bottom:6px;position:relative}
+.stone:hover .sw{transform:scale(1.04)}
+.stone.on .sw{outline-color:var(--gold)}
+.stone.on{color:var(--gold)}
+.stone.loading .sw:after{content:'';position:absolute;inset:0;margin:auto;width:16px;height:16px;border:1px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+.stone em{display:block;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line-2)}
+input[type=range]::-moz-range-track{height:1px;background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--ivory);margin-top:-6.5px;border:none}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ivory);border:none}
+.empty{grid-column:1/-1;font-size:12px;color:var(--dim);padding:12px 0}
+
+/* ── mobile ────────────────────────────────────────────── */
+@media (max-width:860px){
+  header{padding:0 16px}
+  .brand span{display:none}
+  .btn .lbl{display:none}
+  .btn{padding:0 12px}
+  #studio{flex-direction:column}
+  #stage{padding:12px 12px 70px;flex:1 1 auto;min-height:0}
+  #gl{max-height:calc(100vh - 60px - 46vh - 84px)}
+  #tools{bottom:12px}
+  .tool{padding:0 12px;height:38px}
+  .tool .tl{display:none}
+  #brushBar{bottom:62px}
+  #brushBar input{width:70px}
+  #fams{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+  #fams::-webkit-scrollbar{display:none}
+  #panel{width:auto;height:46vh;border-left:none;border-top:1px solid var(--line)}
+  .phead{padding:14px 16px 10px;display:flex;align-items:baseline;gap:10px}
+  .phead .eyebrow{display:none}
+  .phead h2{font-size:20px;margin:0}
+  .phead{flex-wrap:wrap}
+  #render{flex-basis:100%;margin-top:10px;height:42px}
+  .tabs{display:flex;padding:0 16px;gap:22px;border-bottom:1px solid var(--line)}
+  .tab{height:38px;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid transparent;margin-bottom:-1px}
+  .tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+  .pbody{padding:0 16px 24px}
+  #panel[data-tab=stone] #secLayout,#panel[data-tab=stone] #secFine{display:none}
+  #panel[data-tab=layout] #secStone{display:none}
+  .sec{padding:14px 0}
+  #grid{grid-template-columns:repeat(5,1fr);gap:8px}
+  .tips{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="index.html"><b>VELURA</b><span>Your Room</span></a>
+  <div class="actions hidden" id="acts">
+    <button class="btn" id="btnNew" title="New photo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 5h2.5L6 3h4l1.5 2H14v8H2z"/><circle cx="8" cy="8.8" r="2.4"/></svg><span class="lbl">New photo</span></button>
+    <button class="btn" id="btnSave" title="Save image"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11"/></svg><span class="lbl">Save</span></button>
+    <button class="btn solid" id="btnShare" title="Share"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 10V2M5 5l3-3 3 3M3 8v6h10V8"/></svg><span class="lbl">Share</span></button>
+  </div>
+</header>
+
+<!-- Empty state -->
+<main id="intro">
+  <div class="wrap">
+    <div class="eyebrow">Material intelligence · Photo mode</div>
+    <h1>Your room.<br><em>Any stone.</em></h1>
+    <p class="lead">Upload a photo of your space. Velura finds the floor and lays real slabs from our collection on it, in true scale and perspective.</p>
+    <label id="drop">
+      <div class="big">Upload a room photo</div>
+      <div class="small">Tap to choose, or drop a JPG / PNG here</div>
+      <input type="file" id="file" accept="image/*">
+    </label>
+    <div class="tips">
+      <div><b>Stand, don't crouch</b>Shoot from standing height with the camera held level.</div>
+      <div><b>Show the floor</b>The more floor in frame, the better the result.</div>
+      <div><b>Use daylight</b>Soft natural light gives the most honest stone colour.</div>
+    </div>
+    <div class="privacy">Floor detection runs on your device. Your photo is only sent to our renderer when you tap Render.</div>
+  </div>
+</main>
+
+<!-- Studio -->
+<section id="studio" class="hidden">
+  <div id="stage">
+    <div id="canvasWrap">
+      <canvas id="gl"></canvas>
+      <canvas id="aiCv" class="hidden"></canvas>
+      <div id="overlay">
+        <div id="divider" class="hidden"><i></i></div>
+        <div class="tagL hidden" id="tagL">Before</div>
+        <div class="tagR hidden" id="tagR">Velura</div>
+        <div id="horizon" class="hidden"><span>Drag to the horizon</span></div>
+        <div id="brushRing" class="hidden"></div>
+        <div id="modeTag" class="hidden">Live preview</div>
+      </div>
+    </div>
+
+    <div id="brushBar" class="hidden">
+      <div class="chips"><button class="chip on" data-brush="add">Add floor</button><button class="chip" data-brush="erase">Erase</button></div>
+      <span style="color:var(--dim)">Size</span><input type="range" id="brushSize" min="10" max="160" value="50">
+    </div>
+
+    <nav id="tools">
+      <button class="tool" data-tool="compare" title="Before / after"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2.5" width="12" height="11" rx="1"/><path d="M8 1v14"/></svg><span class="tl">Compare</span></button>
+      <button class="tool" data-tool="move" title="Shift the tiles"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 1.5v13M1.5 8h13M8 1.5 6 3.5M8 1.5l2 2M8 14.5l-2-2M8 14.5l2-2M1.5 8l2-2M1.5 8l2 2M14.5 8l-2-2M14.5 8l-2 2"/></svg><span class="tl">Shift</span></button>
+      <button class="tool" data-tool="brush" title="Refine the floor edges"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M10.5 2.5l3 3-6.5 6.5-3-3zM4 9.5 2.5 13.5 6.5 12"/></svg><span class="tl">Refine</span></button>
+      <button class="tool" data-tool="horizon" title="Adjust perspective"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 7h14M3 14l4-7M13 14 9 7M8 14V7"/></svg><span class="tl">Perspective</span></button>
+    </nav>
+
+    <div id="hud" class="hidden"><div><div class="spin"></div><div class="t" id="hudT">Reading your floor</div><div class="s" id="hudS"></div><div class="bar"><i id="hudBar"></i></div></div></div>
+  </div>
+
+  <aside id="panel" data-tab="stone">
+    <div class="phead">
+      <div class="eyebrow">On your floor</div>
+      <h2 id="stoneName">—</h2>
+      <div class="fam" id="stoneFam"></div>
+      <button id="render" disabled><span id="renderLbl">Render photoreal</span><small id="renderSub">about 20 sec</small></button>
+    </div>
+    <div class="tabs"><button class="tab on" data-tab="stone">Stone</button><button class="tab" data-tab="layout">Layout</button></div>
+    <div class="pbody">
+      <div class="sec" id="secStone">
+        <input id="search" placeholder="Search the collection" autocomplete="off">
+        <div class="chips" id="fams"></div>
+        <div id="grid"></div>
+      </div>
+      <div class="sec" id="secLayout">
+        <div class="label">Format</div><div class="chips" id="sizes"></div>
+        <div class="label">Pattern</div><div class="chips" id="patterns"></div>
+        <div class="label">Finish</div><div class="chips" id="finishes"></div>
+        <div class="label">Rotation <span id="angleVal">0°</span></div>
+        <input type="range" id="angle" min="-45" max="45" step="0.5" value="0">
+      </div>
+      <div class="sec" id="secFine">
+        <div class="label">Match room light <span id="lightVal"></span></div>
+        <input type="range" id="light" min="0" max="100" value="85">
+        <div class="label" style="margin-top:18px">Level <span id="rollVal">0°</span></div>
+        <input type="range" id="roll" min="-8" max="8" step="0.1" value="0">
+        <div class="label" style="margin-top:18px">Vein scale <span id="veinVal"></span></div>
+        <input type="range" id="vein" min="50" max="200" value="100">
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ══════════════════════════════════════════════════════════
+   VELURA · PHOTO MODE
+   1. Floor found on-device (SegFormer / ADE20K via Transformers.js)
+   2. Pinhole camera model: horizon + focal length → floor plane in metres
+   3. Real slab photo cut into tiles at true size, projected in WebGL
+   4. Room lighting + contact shadows + polished reflections re-applied
+   ══════════════════════════════════════════════════════════ */
+
+const CFG = {
+  maxSide: 1600,           // working resolution (long side, px)
+  camHeight: 1.45,         // assumed camera height above floor (m)
+  focal: 0.74,             // focal length as a fraction of the long side (≈ phone main camera)
+  slabWidth: 2.8,          // a stone photo is treated as a slab this wide (m)
+  joint: 0.002,            // grout joint (m) — marble is laid tight
+  models: [                // tried in order
+    { id: 'Xenova/segformer-b2-finetuned-ade-512-512', dtype: 'q8' },
+    { id: 'Xenova/segformer-b0-finetuned-ade-512-512', dtype: 'fp32' },
+  ],
+  transformersUrl: 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.0',
+  // Photoreal renderer (Cloudflare Worker in /worker). Set after `wrangler deploy`.
+  renderApi: new URLSearchParams(location.search).get('api') || 'https://velura-render.YOUR-SUBDOMAIN.workers.dev',
+  renderMaxSide: 1280,
+};
+
+const SIZES = [
+  { id: '60', label: '60 × 60', w: .6, l: .6 },
+  { id: '80', label: '80 × 80', w: .8, l: .8 },
+  { id: '120x60', label: '120 × 60', w: 1.2, l: .6 },
+  { id: '120', label: '120 × 120', w: 1.2, l: 1.2 },
+  { id: 'slab', label: 'Full slab', w: 0, l: 0 },
+];
+const PATTERNS = [{ id: 0, label: 'Straight' }, { id: 1, label: 'Staggered' }, { id: 2, label: 'Book-matched' }];
+const FINISHES = [{ id: 'polished', label: 'Polished', gloss: 1 }, { id: 'honed', label: 'Honed', gloss: .22 }, { id: 'leather', label: 'Leather', gloss: 0 }];
+
+const $ = id => document.getElementById(id);
+const S = {
+  W: 0, H: 0, rgba: null, mask: null, catalog: [], stone: null, tex: new Map(),
+  size: SIZES[1], pattern: 0, finish: FINISHES[0], angle: 0, offset: [0, 0],
+  horizon: 0, roll: 0, light: .85, vein: 1, tool: 'none', split: .5, brush: 'add',
+  floorMean: .5, exposure: 1, family: 'all', query: '', ready: false, maskVer: 0, photoId: 0, ai: null, rendering: false,
+};
+
+/* ── utilities ───────────────────────────────────────────── */
+let toastT;
+function toast(msg, ms = 3400) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+function hud(on, title, sub, pct) {
+  $('hud').classList.toggle('hidden', !on);
+  if (title != null) $('hudT').textContent = title;
+  if (sub != null) $('hudS').textContent = sub;
+  $('hudBar').style.width = (pct == null ? 0 : pct) + '%';
+  $('hudBar').parentNode.style.visibility = pct == null ? 'hidden' : 'visible';
+}
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
+// separable box blur, `iter` passes ≈ gaussian
+function blur(src, w, h, r, iter = 3) {
+  r = Math.max(1, Math.round(r));
+  let a = Float32Array.from(src), b = new Float32Array(w * h);
+  const inv = 1 / (2 * r + 1);
+  for (let k = 0; k < iter; k++) {
+    for (let y = 0; y < h; y++) {                       // horizontal a → b
+      const row = y * w; let acc = 0;
+      for (let i = -r; i <= r; i++) acc += a[row + Math.min(w - 1, Math.max(0, i))];
+      for (let x = 0; x < w; x++) {
+        b[row + x] = acc * inv;
+        acc += a[row + Math.min(w - 1, x + r + 1)] - a[row + Math.max(0, x - r)];
+      }
+    }
+    for (let x = 0; x < w; x++) {                       // vertical b → a
+      let acc = 0;
+      for (let i = -r; i <= r; i++) acc += b[Math.min(h - 1, Math.max(0, i)) * w + x];
+      for (let y = 0; y < h; y++) {
+        a[y * w + x] = acc * inv;
+        acc += b[Math.min(h - 1, y + r + 1) * w + x] - b[Math.max(0, y - r) * w + x];
+      }
+    }
+  }
+  return a;
+}
+
+// keep only floor regions that matter; fill tiny holes
+function cleanMask(bin, w, h) {
+  const n = w * h, lab = new Int32Array(n).fill(-1), stack = new Int32Array(n);
+  const clean = (val, minArea, keepIfTouchesEdge) => {
+    lab.fill(-1);
+    for (let s = 0; s < n; s++) {
+      if (bin[s] !== val || lab[s] !== -1) continue;
+      let sp = 0, cnt = 0, edge = false; stack[sp++] = s; lab[s] = s;
+      const members = [];
+      while (sp) {
+        const p = stack[--sp]; members.push(p); cnt++;
+        const x = p % w, y = (p / w) | 0;
+        if (x === 0 || y === 0 || x === w - 1 || y === h - 1) edge = true;
+        if (x > 0 && bin[p - 1] === val && lab[p - 1] === -1) { lab[p - 1] = s; stack[sp++] = p - 1; }
+        if (x < w - 1 && bin[p + 1] === val && lab[p + 1] === -1) { lab[p + 1] = s; stack[sp++] = p + 1; }
+        if (y > 0 && bin[p - w] === val && lab[p - w] === -1) { lab[p - w] = s; stack[sp++] = p - w; }
+        if (y < h - 1 && bin[p + w] === val && lab[p + w] === -1) { lab[p + w] = s; stack[sp++] = p + w; }
+      }
+      if (cnt < minArea && !(keepIfTouchesEdge && edge)) for (const p of members) bin[p] = 1 - val;
+    }
+  };
+  clean(1, n * 0.004, false);      // drop floor specks
+  clean(0, n * 0.0006, true);      // fill pinholes (but keep real objects)
+  return bin;
+}
+
+/* ── WebGL renderer ──────────────────────────────────────── */
+const canvas = $('gl');
+const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false, premultipliedAlpha: false });
+let prog, U = {}, T = {}, aniso;
+
+const VS = `#version 300 es
+in vec2 p; out vec2 vUv;
+void main(){ vUv = p*.5+.5; vUv.y = 1.-vUv.y; gl_Position = vec4(p,0,1); }`;
+
+const FS = `#version 300 es
+precision highp float;
+in vec2 vUv; out vec4 o;
+uniform sampler2D uOrig, uMask, uIllum, uDist, uRefl, uStone;
+uniform vec2 uRes, uTile, uSlab, uOffset;
+uniform float uF, uTheta, uRoll, uCamH, uAngle, uGloss, uLight, uExposure, uSplit, uJoint, uHasStone;
+uniform int uPattern;
+
+float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
+vec3 toLin(vec3 c){ return pow(c, vec3(2.2)); }
+vec3 toSrgb(vec3 c){ return pow(max(c,0.), vec3(1./2.2)); }
+
+void main(){
+  vec4 orig = texture(uOrig, vUv);
+  float m = texture(uMask, vUv).r;
+  if (vUv.x < uSplit || m < .003 || uHasStone < .5) { o = orig; return; }
+
+  vec2 px = vUv*uRes, c = px - .5*uRes;
+  float cr = cos(uRoll), sr = sin(uRoll);
+  float u = cr*c.x - sr*c.y, v = sr*c.x + cr*c.y;
+  float ct = cos(uTheta), st = sin(uTheta);
+  float den = v*ct + uF*st;                          // >0 → ray hits the floor
+  float vis = smoothstep(.5, 6., den);               // fade right at the horizon
+  den = max(den, .5);
+  float t = uCamH/den;
+  vec2 P = vec2(t*u, t*(uF*ct - v*st));              // floor point (m): X right, Z away
+
+  // pattern space
+  float ca = cos(uAngle), sa = sin(uAngle);
+  vec2 q = vec2(ca*P.x - sa*P.y, sa*P.x + ca*P.y) + uOffset;
+  vec2 g = q/uTile;
+  vec2 gs = g;
+  if (uPattern == 1) gs.x += .5*mod(floor(g.y), 2.);
+  vec2 cell = floor(gs), f = gs - cell;
+
+  // each tile is cut from a different part of the slab photo, at true vein scale
+  vec2 win = min(uTile/uSlab, vec2(1.));
+  vec2 key = cell, fl = f;
+  if (uPattern == 2) { key = floor(cell*.5); vec2 odd = mod(cell, 2.); fl = mix(f, 1.-f, odd); }
+  vec2 org = vec2(hash(key), hash(key + 17.17))*(1. - win);
+  vec2 suv = org + fl*win;
+  vec2 gc = g*win;
+  vec3 stone = textureGrad(uStone, suv, dFdx(gc), dFdy(gc)).rgb;
+  vec3 mean = textureLod(uStone, vec2(.5), 12.).rgb;
+  stone = toLin(stone)*(1. + (hash(cell + 3.1) - .5)*.05);
+
+  // joints
+  vec2 aa = fwidth(gs)*.75 + 1e-5;
+  vec2 e = min(f, 1.-f);
+  vec2 jw = vec2(uJoint)/uTile*.5;
+  vec2 ln = 1. - smoothstep(jw, jw + aa, e);
+  float joint = max(ln.x, ln.y)*clamp(1. - 6.*max(aa.x, aa.y), 0., 1.);
+  stone = mix(stone, toLin(mean)*.62, joint*.85);
+
+  // room light + shadows
+  float L = texture(uIllum, vUv).r*2.;
+  vec3 col = stone*mix(1., L, uLight)*uExposure;
+
+  // polished reflection: mirror the room about where the floor meets it
+  float d = texture(uDist, vUv).r;
+  float ry = px.y - 2.*d;
+  vec3 refl = toLin(texture(uRefl, vec2(vUv.x, max(ry, 0.)/uRes.y)).rgb);
+  float cosA = clamp(den/length(vec3(u, v, uF)), 0., 1.);
+  float fres = .04 + .6*pow(1. - cosA, 3.);
+  float w = uGloss*fres*exp(-d/(.3*uRes.y))*smoothstep(0., .04*uRes.y, ry);
+  col = mix(col, refl, clamp(w, 0., .6));
+
+  vec3 res = toSrgb(col);
+  o = vec4(mix(orig.rgb, res, m*vis), 1.);
+}`;
+
+function initGL() {
+  if (!gl) return false;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  for (const n of ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uRes', 'uTile', 'uSlab', 'uOffset', 'uF', 'uTheta', 'uRoll', 'uCamH', 'uAngle', 'uGloss', 'uLight', 'uExposure', 'uSplit', 'uJoint', 'uHasStone', 'uPattern'])
+    U[n] = gl.getUniformLocation(prog, n);
+  ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone'].forEach((n, i) => gl.uniform1i(U[n], i));
+  aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+  return true;
+}
+
+function makeTex(unit, filter = gl.LINEAR) {
+  const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+function upload(unit, tex, w, h, ifmt, fmt, type, data) {
+  gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage2D(gl.TEXTURE_2D, 0, ifmt, w, h, 0, fmt, type, data);
+}
+function stoneTexture(img) {
+  const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(16, gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+  return { tex: t, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height };
+}
+
+/* camera from current settings */
+function cam(horizon = S.horizon) {
+  const f = CFG.focal * Math.max(S.W, S.H);
+  const theta = Math.atan2(S.H / 2 - horizon, f);
+  return { f, theta };
+}
+function floorPoint(x, y, horizon) {
+  const { f, theta } = cam(horizon);
+  const cx = x - S.W / 2, cy = y - S.H / 2, cr = Math.cos(S.roll), sr = Math.sin(S.roll);
+  const u = cr * cx - sr * cy, v = sr * cx + cr * cy;
+  const den = v * Math.cos(theta) + f * Math.sin(theta);
+  if (den < 2) return null;
+  const t = CFG.camHeight / den;
+  return [t * u, t * (f * Math.cos(theta) - v * Math.sin(theta))];
+}
+
+let raf = 0;
+function render() { if (!raf) raf = requestAnimationFrame(draw); }
+function draw() {
+  raf = 0;
+  if (!S.ready) return;
+  const { f, theta } = cam();
+  const st = S.stone && S.tex.get(S.stone.slug);
+  gl.viewport(0, 0, S.W, S.H);
+  gl.uniform2f(U.uRes, S.W, S.H);
+  gl.uniform1f(U.uF, f); gl.uniform1f(U.uTheta, theta); gl.uniform1f(U.uRoll, S.roll);
+  gl.uniform1f(U.uCamH, CFG.camHeight);
+  gl.uniform1f(U.uAngle, S.angle * Math.PI / 180);
+  gl.uniform2f(U.uOffset, S.offset[0], S.offset[1]);
+  gl.uniform1i(U.uPattern, S.pattern);
+  gl.uniform1f(U.uGloss, S.finish.gloss);
+  gl.uniform1f(U.uLight, S.light);
+  gl.uniform1f(U.uExposure, S.exposure);
+  gl.uniform1f(U.uJoint, CFG.joint);
+  const aiOn = aiActive();
+  gl.uniform1f(U.uSplit, S.tool === 'compare' ? (aiOn ? 2 : S.split) : -1);
+  syncAI(aiOn);
+  gl.uniform1f(U.uHasStone, st ? 1 : 0);
+  if (st) {
+    const slabW = CFG.slabWidth * S.vein, slabH = slabW * st.h / st.w;
+    gl.uniform2f(U.uSlab, slabW, slabH);
+    const tw = S.size.w || slabW, tl = S.size.l || slabH;
+    gl.uniform2f(U.uTile, tw, tl);
+    gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, st.tex);
+  }
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/* ── load photo ─────────────────────────────────────────── */
+async function loadPhoto(blobOrUrl) {
+  let bmp;
+  try {
+    if (typeof blobOrUrl === 'string') { const r = await fetch(blobOrUrl); blobOrUrl = await r.blob(); }
+    bmp = await createImageBitmap(blobOrUrl, { imageOrientation: 'from-image' });
+  } catch (e) {
+    toast('That file could not be opened. Please use a JPG or PNG photo.'); return;
+  }
+  const k = Math.min(1, CFG.maxSide / Math.max(bmp.width, bmp.height));
+  S.W = Math.round(bmp.width * k); S.H = Math.round(bmp.height * k);
+  const c = document.createElement('canvas'); c.width = S.W; c.height = S.H;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0, S.W, S.H);
+  S.photoCanvas = c; S.photoId++; S.ai = null;
+  S.rgba = ctx.getImageData(0, 0, S.W, S.H).data;
+  S.mask = new Float32Array(S.W * S.H);
+  S.offset = [0, 0]; S.angle = 0; S.roll = 0; $('angle').value = 0; $('roll').value = 0; syncLabels();
+  S.horizon = S.H * .42;
+
+  canvas.width = S.W; canvas.height = S.H;
+  $('intro').classList.add('hidden'); $('studio').classList.remove('hidden'); $('acts').classList.remove('hidden');
+  fitCanvas();
+  T.orig = T.orig || makeTex(0); T.mask = T.mask || makeTex(1); T.illum = T.illum || makeTex(2);
+  T.dist = T.dist || makeTex(3, gl.NEAREST); T.refl = T.refl || makeTex(4);
+  upload(0, T.orig, S.W, S.H, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(S.rgba.buffer));
+  prepLight(); pushMask(); prepDist();
+  S.ready = true; render();
+
+  hud(true, 'Reading your floor', 'Finding where the floor is…', null);
+  await nextFrame();
+  const ok = await detectFloor(c);
+  hud(false);
+  if (!ok) { setTool('brush'); return; }
+  autoAlign();
+  pushMask(); prepLight(); prepDist(); render();
+  if (!window.__veluraTest) toast('Floor found. Try a few stones — Refine edges if anything is off.');
+}
+
+/* precompute illumination (from the photo) and blurred reflection source */
+function prepLight() {
+  const { W, H, rgba } = S, n = W * H;
+  const lum = new Float32Array(n);
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const r = rgba[i * 4] / 255, g = rgba[i * 4 + 1] / 255, b = rgba[i * 4 + 2] / 255;
+    lum[i] = Math.pow(.2126 * r + .7152 * g + .0722 * b, 2.2); sum += lum[i];
+  }
+  // light is measured on floor pixels only, so bright walls don't bleed a glow into the floor edge
+  const lm = new Float32Array(n), mm = new Float32Array(n);
+  let anyFloor = false;
+  for (let i = 0; i < n; i++) { const w = S.mask[i] > .5 ? 1 : 0; mm[i] = w; lm[i] = lum[i] * w; anyFloor = anyFloor || w > 0; }
+  const rad = Math.max(2, W * .009);
+  const bl = anyFloor ? blur(lm, W, H, rad, 3) : blur(lum, W, H, rad, 3);
+  if (anyFloor) { const bm = blur(mm, W, H, rad, 3); for (let i = 0; i < n; i++) bl[i] = bm[i] > .02 ? bl[i] / bm[i] : bl[i]; }
+  let fs = 0, fc = 0;
+  for (let i = 0; i < n; i++) if (S.mask[i] > .5) { fs += bl[i]; fc++; }
+  const mean = fc ? fs / fc : sum / n;
+  S.floorMean = mean;
+  const out = new Uint8Array(n);
+  for (let i = 0; i < n; i++) {
+    let L = Math.pow(bl[i] / (mean + 1e-6), .8);
+    out[i] = Math.max(0, Math.min(255, L * 127.5));
+  }
+  upload(2, T.illum, W, H, gl.R8, gl.RED, gl.UNSIGNED_BYTE, out);
+  // stone brightness follows how bright the photo is overall (gently)
+  const sceneMean = Math.pow(sum / n, 1 / 2.2);
+  S.exposure = Math.min(1.1, Math.max(.55, Math.pow(sceneMean / .42, .7)));
+
+  if (!S.reflDone) {
+    const hw = Math.max(1, W >> 1), hh = Math.max(1, H >> 1);
+    const c = document.createElement('canvas'); c.width = hw; c.height = hh;
+    const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(S.photoCanvas, 0, 0, hw, hh);
+    const d = x.getImageData(0, 0, hw, hh).data, m = hw * hh;
+    const ch = [0, 1, 2].map(k => { const a = new Float32Array(m); for (let i = 0; i < m; i++) a[i] = d[i * 4 + k]; return blur(a, hw, hh, Math.max(1, hw * .004), 2); });
+    const o = new Uint8Array(m * 4);
+    for (let i = 0; i < m; i++) { o[i * 4] = ch[0][i]; o[i * 4 + 1] = ch[1][i]; o[i * 4 + 2] = ch[2][i]; o[i * 4 + 3] = 255; }
+    upload(4, T.refl, hw, hh, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, o);
+    S.reflDone = true;
+  }
+}
+/* distance (px) from each floor pixel up to the nearest non-floor pixel in its column */
+function prepDist() {
+  const { W, H, mask } = S, d = new Float32Array(W * H);
+  for (let x = 0; x < W; x++) {
+    let last = -1;
+    for (let y = 0; y < H; y++) {
+      const i = y * W + x;
+      if (mask[i] < .5) { last = y; d[i] = 0; } else d[i] = y - last;
+    }
+  }
+  upload(3, T.dist, W, H, gl.R32F, gl.RED, gl.FLOAT, d);
+}
+function pushMask() {
+  S.maskVer++;
+  const n = S.W * S.H, m = new Uint8Array(n);
+  for (let i = 0; i < n; i++) m[i] = S.mask[i] * 255;
+  upload(1, T.mask, S.W, S.H, gl.R8, gl.RED, gl.UNSIGNED_BYTE, m);
+}
+
+/* ── floor detection (on device) ─────────────────────────── */
+let segmenter = null;
+async function getSegmenter() {
+  if (segmenter) return segmenter;
+  const { pipeline, env } = await import(CFG.transformersUrl);
+  env.allowLocalModels = false;
+  const files = {};
+  const progress = p => {
+    if (p.status === 'progress' && p.total) {
+      files[p.file] = [p.loaded, p.total];
+      let a = 0, b = 0; for (const k in files) { a += files[k][0]; b += files[k][1]; }
+      hud(true, 'Preparing floor detection', `First time only · ${(b / 1048576).toFixed(0)} MB · stays on your device`, a / b * 100);
+    }
+  };
+  let lastErr;
+  for (const m of CFG.models) {
+    try { segmenter = await pipeline('image-segmentation', m.id, { dtype: m.dtype, progress_callback: progress }); return segmenter; }
+    catch (e) { lastErr = e; console.warn('model failed', m.id, e); }
+  }
+  throw lastErr;
+}
+async function detectFloor(c) {
+  try {
+    const seg = await getSegmenter();
+    hud(true, 'Reading your floor', 'Finding where the floor is…', null);
+    await nextFrame();
+    const url = c.toDataURL('image/jpeg', .92);
+    const out = await seg(url);
+    const floor = out.find(o => String(o.label).trim().toLowerCase().startsWith('floor'));
+    if (!floor) throw new Error('no-floor');
+    const mk = floor.mask, n = S.W * S.H, bin = new Uint8Array(n);
+    // mask may come back at a different size; sample nearest
+    const sx = mk.width / S.W, sy = mk.height / S.H, ch = mk.channels || 1;
+    for (let y = 0; y < S.H; y++) {
+      const my = Math.min(mk.height - 1, (y * sy) | 0);
+      for (let x = 0; x < S.W; x++) bin[y * S.W + x] = mk.data[(my * mk.width + Math.min(mk.width - 1, (x * sx) | 0)) * ch] > 127 ? 1 : 0;
+    }
+    cleanMask(bin, S.W, S.H);
+    let area = 0; for (let i = 0; i < n; i++) area += bin[i];
+    if (area < n * .02) throw new Error('no-floor');
+    setMaskFromBinary(bin);
+    return true;
+  } catch (e) {
+    console.warn(e);
+    if (String(e.message) === 'no-floor') toast('We couldn’t see enough floor. Paint it in with the brush.', 5000);
+    else toast('Floor detection isn’t available right now. Paint your floor with the brush.', 5000);
+    return false;
+  }
+}
+function setMaskFromBinary(bin) {
+  const f = new Float32Array(bin.length); for (let i = 0; i < bin.length; i++) f[i] = bin[i];
+  S.mask = blur(f, S.W, S.H, Math.max(1, S.W / 900), 2);
+}
+
+/* straight edges of the floor (where it meets walls / furniture), found by RANSAC in the image */
+function floorEdges() {
+  const { W, H, mask } = S, pts = [], m = 4;
+  for (let y = m; y < H - m; y += 2) for (let x = m; x < W - m; x += 2) {
+    const i = y * W + x;
+    if (mask[i] > .5 && (mask[i - W] < .5 || mask[i - 1] < .5 || mask[i + 1] < .5)) pts.push([x, y]);
+  }
+  const lines = [], tol = 2.5 * W / 1600, minCount = Math.max(30, W * .03);
+  let rest = pts;
+  for (let k = 0; k < 4 && rest.length > minCount; k++) {
+    let best = null;
+    for (let it = 0; it < 500; it++) {
+      const a = rest[(Math.random() * rest.length) | 0], b = rest[(Math.random() * rest.length) | 0];
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+      if (L < W * .03 || Math.abs(dx) / L < .1) continue;          // skip near-vertical (object silhouettes)
+      const nx = -dy / L, ny = dx / L; let cnt = 0;
+      for (const p of rest) if (Math.abs((p[0] - a[0]) * nx + (p[1] - a[1]) * ny) < tol) cnt++;
+      if (!best || cnt > best.cnt) best = { a, d: [dx / L, dy / L], n: [nx, ny], cnt };
+    }
+    if (!best || best.cnt < minCount) break;
+    const inl = [], out = [];
+    for (const p of rest) (Math.abs((p[0] - best.a[0]) * best.n[0] + (p[1] - best.a[1]) * best.n[1]) < tol ? inl : out).push(p);
+    let lo = Infinity, hi = -Infinity;
+    for (const p of inl) { const s = (p[0] - best.a[0]) * best.d[0] + (p[1] - best.a[1]) * best.d[1]; lo = Math.min(lo, s); hi = Math.max(hi, s); }
+    if (hi - lo > W * .08) lines.push({ p0: [best.a[0] + best.d[0] * lo, best.a[1] + best.d[1] * lo], p1: [best.a[0] + best.d[0] * hi, best.a[1] + best.d[1] * hi], d: best.d, cnt: inl.length });
+    rest = out;
+  }
+  return lines;
+}
+
+/* horizon: pick the camera tilt at which two floor edges become perpendicular (room corners);
+   otherwise fall back to a typical phone tilt */
+function estimateHorizon(yFar) {
+  const { W, H } = S, f = CFG.focal * Math.max(W, H);
+  const yOfTheta = th => H / 2 - f * Math.tan(th);
+  const maxH = yFar - H * .03;                                  // horizon must sit above all visible floor
+  const prior = Math.min(maxH, yOfTheta(10 * Math.PI / 180));
+  const lines = floorEdges();
+  S._edges = lines;
+  let bestPair = null;
+  for (let i = 0; i < lines.length; i++) for (let j = i + 1; j < lines.length; j++) {
+    const c = Math.abs(lines[i].d[0] * lines[j].d[0] + lines[i].d[1] * lines[j].d[1]);
+    if (c > Math.cos(20 * Math.PI / 180)) continue;           // need clearly different directions
+    const score = Math.min(lines[i].cnt, lines[j].cnt);
+    if (!bestPair || score > bestPair.score) bestPair = { a: lines[i], b: lines[j], score };
+  }
+  if (!bestPair) return prior;
+  let best = null;
+  for (let deg = -5; deg <= 40; deg += .25) {
+    const hz = yOfTheta(deg * Math.PI / 180);
+    if (hz > maxH) continue;
+    const dirs = [bestPair.a, bestPair.b].map(l => {
+      const A = floorPoint(l.p0[0], l.p0[1], hz), B = floorPoint(l.p1[0], l.p1[1], hz);
+      if (!A || !B) return null; const dx = B[0] - A[0], dz = B[1] - A[1], L = Math.hypot(dx, dz); return [dx / L, dz / L];
+    });
+    if (!dirs[0] || !dirs[1]) continue;
+    const cost = Math.abs(dirs[0][0] * dirs[1][0] + dirs[0][1] * dirs[1][1]);
+    if (!best || cost < best.cost) best = { cost, hz };
+  }
+  return best && best.cost < .06 ? best.hz : prior;
+}
+
+/* guess horizon + tile direction from the floor's far edge */
+function autoAlign() {
+  const { W, H, mask } = S, tops = [];
+  for (let x = 0; x < W; x += 2) { for (let y = 0; y < H; y++) if (mask[y * W + x] > .5) { tops.push([x, y]); break; } }
+  if (tops.length < 20) return;
+  const ys = tops.map(t => t[1]).sort((a, b) => a - b);
+  const yFar = ys[Math.floor(ys.length * .05)];
+  S.horizon = estimateHorizon(yFar);
+
+  // joints run parallel to the strongest straight floor edge (usually a wall)
+  const lines = (S._edges || []).slice().sort((p, q) => q.cnt - p.cnt);
+  if (!lines.length) return;
+  const A = floorPoint(lines[0].p0[0], lines[0].p0[1]), B = floorPoint(lines[0].p1[0], lines[0].p1[1]);
+  if (!A || !B) return;
+  const bestA = Math.atan2(B[1] - A[1], B[0] - A[0]);
+  let deg = -bestA * 180 / Math.PI;           // rotate pattern so joints run parallel to that wall
+  deg = ((deg % 90) + 135) % 90 - 45;
+  S.angle = Math.round(deg * 2) / 2;
+  $('angle').value = S.angle; syncLabels();
+}
+
+/* ── catalogue ───────────────────────────────────────────── */
+async function loadCatalog() {
+  try { S.catalog = await (await fetch('catalog.json')).json(); }
+  catch (e) { toast('Could not load the stone collection.'); S.catalog = []; }
+  const fams = ['all', ...new Set(S.catalog.map(s => s.family))];
+  $('fams').innerHTML = fams.map(f => `<button class="chip${f === 'all' ? ' on' : ''}" data-fam="${f}">${f === 'all' ? 'All' : f}</button>`).join('');
+  drawGrid();
+  const first = S.catalog.find(s => s.slug === 'statuario') || S.catalog[0];
+  if (first) selectStone(first);
+}
+function drawGrid() {
+  const q = S.query.trim().toLowerCase();
+  const list = S.catalog.filter(s => (S.family === 'all' || s.family === S.family) && (!q || s.name.toLowerCase().includes(q)));
+  $('grid').innerHTML = list.length ? list.map(s =>
+    `<button class="stone${S.stone && S.stone.slug === s.slug ? ' on' : ''}" data-slug="${s.slug}" title="${s.name}"><span class="sw" style="background-image:url('${s.thumb}')"></span><em>${s.name}</em></button>`
+  ).join('') : '<div class="empty">No stones match.</div>';
+}
+function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+async function selectStone(s) {
+  S.stone = s;
+  $('stoneName').textContent = s.name; $('stoneFam').textContent = s.family + ' · natural stone';
+  document.querySelectorAll('.stone').forEach(b => b.classList.toggle('on', b.dataset.slug === s.slug));
+  if (!S.tex.has(s.slug)) {
+    const btn = document.querySelector(`.stone[data-slug="${s.slug}"]`); btn && btn.classList.add('loading');
+    try {
+      const img = await loadImage(`stones/${s.slug}.jpg`);
+      S.tex.set(s.slug, stoneTexture(img));
+    } catch (e) { toast('That stone image could not be loaded.'); }
+    btn && btn.classList.remove('loading');
+  }
+  if (S.stone === s) render(); else syncAI(aiActive());
+}
+
+/* ── controls ────────────────────────────────────────────── */
+function chips(el, items, isOn, onPick) {
+  el.innerHTML = items.map((it, i) => `<button class="chip${isOn(it) ? ' on' : ''}" data-i="${i}">${it.label}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('.chip'); if (!b) return; onPick(items[+b.dataset.i]); el.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); render(); };
+}
+function syncLabels() {
+  $('angleVal').textContent = (+S.angle).toFixed(1).replace('.0', '') + '°';
+  $('rollVal').textContent = (S.roll * 180 / Math.PI).toFixed(1).replace('.0', '') + '°';
+  $('lightVal').textContent = Math.round(S.light * 100) + '%';
+  $('veinVal').textContent = Math.round(S.vein * 100) + '%';
+}
+function setTool(t) {
+  S.tool = S.tool === t ? 'none' : t;
+  document.querySelectorAll('.tool').forEach(b => b.classList.toggle('on', b.dataset.tool === S.tool));
+  $('divider').classList.toggle('hidden', S.tool !== 'compare');
+  $('tagL').classList.toggle('hidden', S.tool !== 'compare'); $('tagR').classList.toggle('hidden', S.tool !== 'compare');
+  $('horizon').classList.toggle('hidden', S.tool !== 'horizon');
+  $('brushBar').classList.toggle('hidden', S.tool !== 'brush');
+  $('brushRing').classList.add('hidden');
+  canvas.style.cursor = { compare: 'ew-resize', move: 'grab', horizon: 'ns-resize', brush: 'none' }[S.tool] || 'default';
+  placeOverlay(); render();
+}
+function fitCanvas() {
+  const mobile = innerWidth <= 860;
+  const maxH = mobile ? innerHeight - 60 - innerHeight * .46 - 84 : innerHeight - 60 - 124;
+  canvas.style.maxHeight = maxH + 'px';
+  placeOverlay();
+}
+function placeOverlay() {
+  if (!S.W) return;
+  const r = canvas.getBoundingClientRect(), k = r.height / S.H;
+  $('divider').style.left = (S.split * r.width) + 'px';
+  $('horizon').style.top = (S.horizon * k) + 'px';
+}
+function toImg(e) { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * S.W, (e.clientY - r.top) / r.height * S.H, r]; }
+
+let drag = null;
+canvas.addEventListener('pointerdown', e => {
+  if (!S.ready) return;
+  canvas.setPointerCapture(e.pointerId);
+  const [x, y] = toImg(e);
+  drag = { x, y, p: floorPoint(x, y), off: S.offset.slice() };
+  if (S.tool === 'move') canvas.style.cursor = 'grabbing';
+  onDrag(e);
+});
+canvas.addEventListener('pointermove', e => {
+  if (S.tool === 'brush') {
+    const r = canvas.getBoundingClientRect(), ring = $('brushRing'), d = +$('brushSize').value * r.width / S.W * (S.W / 1000);
+    ring.classList.remove('hidden'); ring.style.left = (e.clientX - r.left) + 'px'; ring.style.top = (e.clientY - r.top) + 'px';
+    ring.style.width = ring.style.height = d * 2 + 'px';
+  }
+  if (drag) onDrag(e);
+});
+canvas.addEventListener('pointerleave', () => $('brushRing').classList.add('hidden'));
+const endDrag = () => {
+  if (!drag) return;
+  if (S.tool === 'brush') { prepLight(); prepDist(); render(); }
+  if (S.tool === 'move') canvas.style.cursor = 'grab';
+  drag = null;
+};
+canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
+
+function onDrag(e) {
+  const [x, y] = toImg(e);
+  if (S.tool === 'compare') { S.split = Math.max(0, Math.min(1, x / S.W)); placeOverlay(); render(); }
+  else if (S.tool === 'horizon') { S.horizon = Math.max(-S.H * .5, Math.min(S.H * .95, y)); placeOverlay(); render(); }
+  else if (S.tool === 'move' || S.tool === 'none') {
+    const p = floorPoint(x, y); if (!p || !drag.p) return;
+    const a = S.angle * Math.PI / 180, dx = drag.p[0] - p[0], dz = drag.p[1] - p[1];
+    S.offset = [drag.off[0] + Math.cos(a) * dx - Math.sin(a) * dz, drag.off[1] + Math.sin(a) * dx + Math.cos(a) * dz];
+    render();
+  } else if (S.tool === 'brush') paint(x, y);
+}
+function paint(cx, cy) {
+  const r = +$('brushSize').value * (S.W / 1000), add = S.brush === 'add', { W, H, mask } = S;
+  // interpolate from last point so fast strokes stay continuous
+  const lx = drag.bx ?? cx, ly = drag.by ?? cy, steps = Math.max(1, Math.ceil(Math.hypot(cx - lx, cy - ly) / (r * .3)));
+  for (let s = 1; s <= steps; s++) {
+    const px = lx + (cx - lx) * s / steps, py = ly + (cy - ly) * s / steps;
+    const x0 = Math.max(0, px - r | 0), x1 = Math.min(W - 1, px + r | 0), y0 = Math.max(0, py - r | 0), y1 = Math.min(H - 1, py + r | 0);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const d = Math.hypot(x - px, y - py) / r; if (d > 1) continue;
+      const a = Math.min(1, (1 - d) * 3), i = y * W + x;
+      mask[i] = add ? Math.max(mask[i], a) : Math.min(mask[i], 1 - a);
+    }
+  }
+  drag.bx = cx; drag.by = cy;
+  pushMask(); render();
+}
+
+/* ── photoreal render (AI) ────────────────────────────────── */
+const aiCv = $('aiCv');
+function settingsKey() {
+  return JSON.stringify([S.photoId, S.maskVer, S.stone && S.stone.slug, S.size.id || S.size.label, S.pattern, S.finish.id || S.finish.label,
+    S.angle, S.offset.map(v => +v.toFixed(3)), Math.round(S.horizon), +S.roll.toFixed(3), S.vein, S.light]);
+}
+function aiActive() { return !!(S.ai && S.ai.key === settingsKey()); }
+function apiReady() { return CFG.renderApi && !CFG.renderApi.includes('YOUR-SUBDOMAIN'); }
+function syncAI(aiOn) {
+  aiCv.classList.toggle('hidden', !aiOn);
+  aiCv.style.clipPath = aiOn && S.tool === 'compare' ? `inset(0 0 0 ${S.split * 100}%)` : 'none';
+  const tag = $('modeTag');
+  tag.classList.toggle('hidden', !S.stone || S.tool === 'compare');
+  tag.classList.toggle('ai', aiOn);
+  tag.textContent = aiOn ? 'Photoreal · AI render' : 'Live preview';
+  const btn = $('render');
+  btn.disabled = S.rendering || !S.stone || !S.tex.has(S.stone && S.stone.slug);
+  btn.classList.toggle('done', aiOn);
+  $('renderLbl').textContent = aiOn ? 'Rendered' : (S.ai ? 'Render again' : 'Render photoreal');
+  $('renderSub').textContent = aiOn ? 'change anything to re-render' : 'about 20 sec';
+}
+function jpegOf(src, w, h, max) {
+  const k = Math.min(1, max / Math.max(w, h)), c = document.createElement('canvas');
+  c.width = Math.round(w * k); c.height = Math.round(h * k);
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', .88);
+}
+function previewJpeg() {
+  const keep = S.tool, keepAi = S.ai; S.tool = 'none'; S.ai = null; draw();
+  const d = jpegOf(canvas, S.W, S.H, CFG.renderMaxSide);
+  S.tool = keep; S.ai = keepAi; render();
+  return d;
+}
+/* Put the AI floor back into the original photo: room pixels stay exactly the customer's own,
+   floor (+ a small soft margin for contact shadows) comes from the render. */
+function blendAI(img) {
+  const { W, H } = S, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const iw = img.naturalWidth, ih = img.naturalHeight, arDiff = Math.abs((W / H) / (iw / ih) - 1);
+  if (arDiff > .03) {                                   // model changed the framing: show its frame, cover-fit
+    const k = Math.max(W / iw, H / ih); x.drawImage(img, (W - iw * k) / 2, (H - ih * k) / 2, iw * k, ih * k); return c;
+  }
+  x.drawImage(S.photoCanvas, 0, 0);
+  const n = W * H, bin = new Float32Array(n);
+  for (let i = 0; i < n; i++) bin[i] = S.mask[i] > .5 ? 1 : 0;
+  const r = Math.max(2, W * .006);
+  const grown = blur(bin, W, H, r, 2);
+  for (let i = 0; i < n; i++) grown[i] = grown[i] > .12 ? 1 : 0;   // dilate ≈ r
+  const alpha = blur(grown, W, H, r * .7, 2);                       // feather
+  const t = document.createElement('canvas'); t.width = W; t.height = H;
+  const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(img, 0, 0, W, H);
+  const d = tx.getImageData(0, 0, W, H);
+  for (let i = 0; i < n; i++) d.data[i * 4 + 3] = Math.min(255, alpha[i] * 255);
+  tx.putImageData(d, 0, 0);
+  x.drawImage(t, 0, 0);
+  return c;
+}
+const RENDER_STEPS = ['Laying your slab at true scale…', 'Matching the light in your room…', 'Adding shadows and reflections…', 'Finishing the photograph…'];
+async function doRender() {
+  if (S.rendering || !S.ready || !S.stone || !S.tex.has(S.stone.slug)) return;
+  if (!apiReady()) { toast('Photoreal rendering isn’t switched on yet.'); return; }
+  let area = 0; for (let i = 0; i < S.mask.length; i += 7) area += S.mask[i] > .5; if (area < S.mask.length / 7 * .02) { toast('Paint the floor first with Refine.'); setTool('brush'); return; }
+  const key = settingsKey();
+  S.rendering = true; syncAI(false);
+  let step = 0, pct = 4;
+  hud(true, 'Rendering your room', RENDER_STEPS[0], pct);
+  const timer = setInterval(() => { pct = Math.min(92, pct + (92 - pct) * .09); step = Math.min(RENDER_STEPS.length - 1, Math.floor(pct / 24)); hud(true, null, RENDER_STEPS[step], pct); }, 600);
+  try {
+    const body = {
+      room: jpegOf(S.photoCanvas, S.W, S.H, CFG.renderMaxSide),
+      composite: previewJpeg(),
+      stone: S.stone.name, size: S.size.label, pattern: PATTERNS[S.pattern].label, finish: S.finish.label,
+    };
+    const res = await fetch(CFG.renderApi.replace(/\/$/, '') + '/render', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.image) {
+      const msg = { limit: 'You’ve used today’s free renders. The live preview still works — come back tomorrow for more.', busy: 'Velura is very busy right now. Please try again in a little while.', forbidden_origin: 'Rendering isn’t enabled for this address.', not_configured: 'Photoreal rendering isn’t switched on yet.' }[data.error];
+      throw new Error(msg || 'The render didn’t come through. Please try again.');
+    }
+    const img = await loadImage(data.image);
+    S.ai = { key, canvas: blendAI(img), remaining: data.remaining };
+    aiCv.width = S.W; aiCv.height = S.H; aiCv.getContext('2d').drawImage(S.ai.canvas, 0, 0);
+    hud(true, null, 'Done', 100);
+    if (data.remaining != null && data.remaining <= 3) toast(`${data.remaining} free render${data.remaining === 1 ? '' : 's'} left today.`);
+  } catch (e) {
+    console.warn(e); toast(e.message && !/fetch|network|JSON/i.test(e.message) ? e.message : 'The render didn’t come through. Check your connection and try again.', 5200);
+  } finally {
+    clearInterval(timer); S.rendering = false; hud(false); render();
+  }
+}
+
+/* ── export ──────────────────────────────────────────────── */
+async function finalImage() {
+  const aiOn = aiActive();
+  const c = document.createElement('canvas'); c.width = S.W; c.height = S.H;
+  const x = c.getContext('2d');
+  if (aiOn) x.drawImage(S.ai.canvas, 0, 0);
+  else { const keep = S.tool; S.tool = 'none'; draw(); S.tool = keep; x.drawImage(canvas, 0, 0); }
+  const pad = Math.round(S.W * .025), fs = Math.max(12, Math.round(S.W * .016));
+  const grd = x.createLinearGradient(0, S.H - fs * 6, 0, S.H); grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, 'rgba(0,0,0,.55)');
+  x.fillStyle = grd; x.fillRect(0, S.H - fs * 6, S.W, fs * 6);
+  x.fillStyle = '#f5efe6'; x.font = `400 ${fs * 1.15}px "Playfair Display", Georgia, serif`;
+  x.letterSpacing = (fs * .4) + 'px'; x.fillText('VELURA', pad, S.H - pad - fs * 1.3);
+  x.letterSpacing = '1px'; x.fillStyle = '#c9a96e'; x.font = `300 ${fs * .8}px "DM Sans", sans-serif`;
+  x.fillText(`${S.stone ? S.stone.name : ''} · ${S.size.label} · ${S.finish.label}`, pad, S.H - pad);
+  render();
+  return new Promise(r => c.toBlob(r, 'image/jpeg', .92));
+}
+async function save() {
+  const b = await finalImage(), a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = `velura-${S.stone ? S.stone.slug : 'room'}.jpg`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function share() {
+  const b = await finalImage();
+  const file = new File([b], `velura-${S.stone ? S.stone.slug : 'room'}.jpg`, { type: 'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: 'Velura', text: `${S.stone ? S.stone.name : 'Natural stone'} on my floor — visualised with Velura` }); } catch (e) { }
+  } else { save(); toast('Saved — share it from your downloads.'); }
+}
+
+/* ── wire up ─────────────────────────────────────────────── */
+function boot() {
+  if (!initGL()) {
+    document.querySelector('#drop .big').textContent = 'This browser can’t run Velura';
+    document.querySelector('#drop .small').textContent = 'Please open this page in a recent Chrome, Safari or Edge.';
+    $('file').disabled = true; return;
+  }
+  chips($('sizes'), SIZES, it => it === S.size, it => S.size = it);
+  chips($('patterns'), PATTERNS, it => it.id === S.pattern, it => S.pattern = it.id);
+  chips($('finishes'), FINISHES, it => it === S.finish, it => S.finish = it);
+  syncLabels();
+
+  $('file').addEventListener('change', e => { const f = e.target.files[0]; if (f) loadPhoto(f); e.target.value = ''; });
+  const drop = $('drop');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) loadPhoto(f); });
+
+  $('btnNew').onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => i.files[0] && (S.reflDone = false, loadPhoto(i.files[0])); i.click(); };
+  $('btnSave').onclick = save; $('btnShare').onclick = share; $('render').onclick = doRender;
+  $('tools').onclick = e => { const b = e.target.closest('.tool'); if (b) setTool(b.dataset.tool); };
+  $('brushBar').onclick = e => { const b = e.target.closest('[data-brush]'); if (!b) return; S.brush = b.dataset.brush; document.querySelectorAll('[data-brush]').forEach(c => c.classList.toggle('on', c === b)); };
+  $('fams').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; S.family = b.dataset.fam; $('fams').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); drawGrid(); };
+  $('search').oninput = e => { S.query = e.target.value; drawGrid(); };
+  $('grid').onclick = e => { const b = e.target.closest('.stone'); if (b) selectStone(S.catalog.find(s => s.slug === b.dataset.slug)); };
+  $('angle').oninput = e => { S.angle = +e.target.value; syncLabels(); render(); };
+  $('roll').oninput = e => { S.roll = +e.target.value * Math.PI / 180; syncLabels(); render(); };
+  $('light').oninput = e => { S.light = +e.target.value / 100; syncLabels(); render(); };
+  $('vein').oninput = e => { S.vein = +e.target.value / 100; syncLabels(); render(); };
+  document.querySelector('.tabs').onclick = e => { const b = e.target.closest('.tab'); if (!b) return; $('panel').dataset.tab = b.dataset.tab; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === b)); };
+  addEventListener('resize', fitCanvas);
+  loadCatalog();
+}
+
+// test hooks (used for automated checks)
+window.__velura = {
+  S, CFG, render, draw, loadPhoto, autoAlign, setTool, finalImage, doRender, aiActive,
+  async setMask(url) {
+    const img = await loadImage(url), c = document.createElement('canvas'); c.width = S.W; c.height = S.H;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0, S.W, S.H); const d = x.getImageData(0, 0, S.W, S.H).data;
+    const bin = new Uint8Array(S.W * S.H); for (let i = 0; i < bin.length; i++) bin[i] = d[i * 4] > 127 ? 1 : 0;
+    setMaskFromBinary(bin); autoAlign(); pushMask(); prepLight(); prepDist(); render();
+  },
+};
+boot();
+</script>
+</body>
+</html>
