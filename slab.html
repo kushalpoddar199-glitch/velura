@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Velura — Natural stone</title>
+<meta name="description" content="See this natural stone in detail, then on your own floor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#050505;--black-2:#0b0b0a;--black-3:#141312;--line:rgba(245,239,230,.10);--line-2:rgba(245,239,230,.18);--ivory:#f5efe6;--dim:rgba(245,239,230,.45);--dim-2:rgba(245,239,230,.68);--gold:#c9a96e;--gold-dim:rgba(201,169,110,.45);--gold-glow:rgba(201,169,110,.12);--serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--ease:cubic-bezier(.16,1,.3,1);--pad:clamp(20px,5vw,72px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{background:var(--black);color:var(--ivory);font-family:var(--sans);font-weight:300;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.hidden{display:none!important}
+.eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+nav{position:sticky;top:0;z-index:50;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);background:rgba(5,5,5,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--serif);letter-spacing:.44em;font-size:17px}
+.crumb{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);display:flex;gap:10px;align-items:center}
+.crumb a:hover{color:var(--ivory)}
+.btn{height:46px;padding:0 24px;border:1px solid var(--line-2);border-radius:999px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:border-color .35s,color .35s,background .35s,transform .4s var(--ease);white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#140f07;font-weight:500}
+.btn.solid:hover{background:#d8bc88;color:#140f07;transform:translateY(-1px)}
+.btn svg{width:15px;height:15px;flex:none}
+.btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);gap:clamp(28px,4vw,64px);padding:clamp(24px,4vw,48px) var(--pad) clamp(60px,8vw,110px);max-width:1520px;margin:0 auto;align-items:start}
+.stage{position:sticky;top:88px}
+#slab{position:relative;aspect-ratio:992/539;border-radius:3px;overflow:hidden;background:#151413;cursor:zoom-in;box-shadow:0 40px 90px rgba(0,0,0,.55)}
+#slab .img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 1.6s var(--ease),opacity .8s}
+#slab .img.lo{filter:blur(10px);transform:scale(1.06)}
+#slab .img.hi{opacity:0}
+#slab .img.hi.ready{opacity:1}
+#lens{position:absolute;width:220px;height:220px;border-radius:50%;border:1px solid rgba(255,255,255,.85);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 0 1px rgba(0,0,0,.2);pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.85);transition:opacity .3s,transform .4s var(--ease);background-repeat:no-repeat}
+#slab:hover #lens{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.sheen{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;background:radial-gradient(520px circle at var(--mx,70%) var(--my,30%),rgba(255,250,240,.5),transparent 60%)}
+.zhint{position:absolute;left:16px;bottom:14px;font-size:9px;letter-spacing:.28em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:rgba(5,5,5,.55);backdrop-filter:blur(6px);color:var(--dim-2)}
+.scale{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+.scale i{flex:1;height:1px;background:var(--line-2);position:relative}
+.scale i:before,.scale i:after{content:'';position:absolute;top:-4px;width:1px;height:9px;background:var(--dim)}
+.scale i:before{left:0}.scale i:after{right:0}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+.thumbs button{aspect-ratio:1;border-radius:2px;background:#151413 no-repeat;position:relative;overflow:hidden;opacity:.6;transition:opacity .3s,outline-color .3s;outline:1px solid transparent;outline-offset:3px}
+.thumbs button:hover{opacity:.9}
+.thumbs button.on{opacity:1;outline-color:var(--gold)}
+.thumbs button span{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;background:linear-gradient(transparent,rgba(0,0,0,.7));text-align:left}
+
+.info h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,5vw,72px);line-height:1;margin:16px 0 16px}
+.info .persona{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.info .line{color:var(--dim-2);font-size:16px;line-height:1.7;margin:12px 0 30px;max-width:460px}
+.acts{display:grid;gap:10px}
+.acts .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts .btn{width:100%}
+.sec{border-top:1px solid var(--line);padding:26px 0;margin-top:30px}
+.sec+.sec{margin-top:0}
+.sec h3{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);font-weight:400;margin-bottom:16px;display:flex;justify-content:space-between;gap:12px}
+.sec h3 span{letter-spacing:.06em;text-transform:none;font-size:11px;color:var(--dim)}
+.spec{display:grid;grid-template-columns:120px 1fr;gap:12px 18px;font-size:14px;line-height:1.5}
+.spec dt{color:var(--dim)}
+.spec dd{color:var(--ivory)}
+.spec dd.req{color:var(--gold)}
+.uses{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.uses span{height:32px;padding:0 14px;border:1px solid var(--line-2);border-radius:999px;font-size:12px;display:inline-flex;align-items:center;color:var(--dim-2)}
+.note{font-size:13.5px;line-height:1.7;color:var(--dim-2)}
+.care{list-style:none;display:grid;gap:10px;font-size:13.5px;color:var(--dim-2);line-height:1.5}
+.care li{display:flex;gap:10px}.care li:before{content:'—';color:var(--gold)}
+
+/* similar */
+.similar{padding:0 var(--pad) clamp(80px,10vw,140px);max-width:1520px;margin:0 auto}
+.similar h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.4vw,46px);margin:14px 0 30px}
+.similar h2 em{font-style:italic;color:var(--gold)}
+#sim{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.sc{display:block;position:relative;aspect-ratio:3/4;border-radius:2px;overflow:hidden;isolation:isolate}
+.sc i{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transition:transform 1.4s var(--ease)}
+.sc:hover i{transform:scale(1.08)}
+.sc:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 50%,rgba(5,5,5,.85))}
+.sc b{position:absolute;left:14px;right:14px;bottom:30px;font-family:var(--serif);font-weight:400;font-size:18px;line-height:1.1}
+.sc small{position:absolute;left:14px;right:14px;bottom:12px;font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* zoom viewer */
+#zoom{position:fixed;inset:0;z-index:150;background:#000;display:none;touch-action:none;cursor:grab}
+#zoom.on{display:block}
+#zoom.drag{cursor:grabbing}
+#zimg{position:absolute;left:0;top:0;transform-origin:0 0;user-select:none;-webkit-user-drag:none;max-width:none}
+#zclose{position:absolute;top:16px;right:16px;z-index:2;width:44px;height:44px;border-radius:50%;background:rgba(20,19,18,.8);border:1px solid var(--line-2);font-size:16px}
+#zbar{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(20,19,18,.85);border:1px solid var(--line)}
+#zbar button{width:40px;height:40px;border-radius:50%;font-size:18px}
+#zbar span{display:flex;align-items:center;padding:0 10px;font-size:11px;letter-spacing:.12em;color:var(--dim-2);min-width:64px;justify-content:center}
+.notfound{min-height:70vh;display:grid;place-items:center;text-align:center;padding:40px}
+.notfound h1{font-family:var(--serif);font-weight:400;font-size:42px;margin-bottom:16px}
+
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .stage{position:static}
+  #sim{grid-template-columns:repeat(3,1fr)}
+  .crumb .hide-m{display:none}
+}
+@media (max-width:560px){
+  #sim{grid-template-columns:repeat(2,1fr)}
+  .acts .row{grid-template-columns:1fr}
+  .spec{grid-template-columns:100px 1fr}
+  .thumbs span{display:none}
+}
+</style>
+<script src="velura.js"></script>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">VELURA</a>
+  <div class="crumb"><a href="index.html#collection" class="hide-m">Collection</a><span class="hide-m">/</span><a id="crumbFam" href="index.html#collection"></a></div>
+  <a class="btn solid" style="height:38px;padding:0 18px;font-size:10px" href="photo.html" id="navTry">Try on my floor</a>
+</nav>
+
+<main id="page">
+  <div class="hero">
+    <div class="stage">
+      <div id="slab" title="Click to inspect"><div class="img lo" id="imgLo"></div><div class="img hi" id="imgHi"></div><div class="sheen" id="sheen"></div><div id="lens"></div><span class="zhint">Hover to inspect · click to zoom</span></div>
+      <div class="scale"><span>Typical slab</span><i></i><span>≈ 2.8 m</span></div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="info">
+      <div class="eyebrow" id="fam"></div>
+      <h1 id="name">&nbsp;</h1>
+      <div class="persona" id="persona"></div>
+      <p class="line" id="line"></p>
+      <div class="acts">
+        <a class="btn solid" id="tryBtn" href="photo.html"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 5h2.5L6 3h4l1.5 2H14v8H2z"/><circle cx="8" cy="8.8" r="2.4"/></svg>See it on my floor</a>
+        <div class="row">
+          <button class="btn" id="slBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 13.5S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.5-6 7.5z"/></svg><span>Shortlist</span></button>
+          <button class="btn" id="qBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 2.5h7l3 3v8H3z"/><path d="M5.5 8h5M5.5 10.5h3.5"/></svg>Request a quote</button>
+        </div>
+      </div>
+      <div class="sec"><h3>Specifications <span>Typical — confirm with dealer</span></h3><dl class="spec" id="spec"></dl></div>
+      <div class="sec"><h3>Where it works <span>General guidance</span></h3><div class="uses" id="uses"></div><p class="note" id="note"></p></div>
+      <div class="sec"><h3>Living with it</h3><ul class="care" id="care"></ul></div>
+    </div>
+  </div>
+  <div class="similar">
+    <div class="eyebrow">You may also like</div>
+    <h2>More from the <em id="simFam">collection</em></h2>
+    <div id="sim"></div>
+  </div>
+</main>
+
+<div id="zoom"><img id="zimg" alt=""><button id="zclose" aria-label="Close">✕</button>
+  <div id="zbar"><button id="zout" aria-label="Zoom out">−</button><span id="zpct">100%</span><button id="zin" aria-label="Zoom in">+</button></div></div>
+
+<script>
+'use strict';
+const V = window.Velura, $ = id => document.getElementById(id);
+const slug = new URLSearchParams(location.search).get('id');
+
+V.catalog().then(cat => {
+  const s = cat.find(x => x.slug === slug) || (!slug && cat.find(x => x.slug === 'statuario'));
+  if (!s) {
+    $('page').innerHTML = `<div class="notfound"><div><h1>We couldn’t find that stone.</h1><a class="btn" href="index.html#collection">Browse the collection</a></div></div>`;
+    return;
+  }
+  const [persona, line] = V.persona(s), g = V.guidance(s), fam = V.COLLECTIONS[s.family] || s.family, src = V.tex(s.slug);
+  document.title = `${s.name} — Velura`;
+  $('crumbFam').textContent = fam; $('fam').textContent = `${fam} · Natural stone`;
+  $('name').textContent = s.name; $('persona').textContent = persona; $('line').textContent = line;
+  $('tryBtn').href = $('navTry').href = `photo.html?stone=${s.slug}`;
+
+  // slab image: blurred thumb first, sharp photo fades in
+  $('imgLo').style.backgroundImage = `url('${s.thumb}')`;
+  const im = new Image(); im.onload = () => { $('imgHi').style.backgroundImage = `url('${src}')`; $('imgHi').classList.add('ready'); setupLens(im); }; im.src = src;
+
+  // detail views: four close-ups of the same slab
+  const crops = [['Full slab', 'center', 'cover'], ['Vein detail', '28% 40%', '320%'], ['Edge', '88% 70%', '320%'], ['Centre', '55% 55%', '420%']];
+  $('thumbs').innerHTML = crops.map((c, i) => `<button class="${i ? '' : 'on'}" data-i="${i}" style="background-image:url('${src}'),url('${s.thumb}');background-position:${c[1]};background-size:${c[2]}"><span>${c[0]}</span></button>`).join('');
+  $('thumbs').onclick = e => { const b = e.target.closest('button'); if (!b) return; const i = +b.dataset.i; $('thumbs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); openZoom(i ? [0, 2.6, 2.6, 3.4][i] : 1, i ? [[.28, .4], [.88, .7], [.55, .55]][i - 1] : [.5, .5]); };
+
+  $('spec').innerHTML = V.specs(s).map(([k, v]) => `<dt>${k}</dt><dd class="${/request|confirm/i.test(v) ? 'req' : ''}">${v}</dd>`).join('');
+  $('uses').innerHTML = g.best.map(u => `<span>${u}</span>`).join(''); $('note').textContent = g.note;
+  $('care').innerHTML = V.care.map(c => `<li>${c}</li>`).join('');
+
+  // actions
+  const slBtn = $('slBtn'), syncSl = () => { const on = V.shortlist.has(s.slug); slBtn.classList.toggle('on', on); slBtn.querySelector('span').textContent = on ? 'Shortlisted' : 'Shortlist'; };
+  slBtn.onclick = () => { const on = V.shortlist.toggle(s.slug); syncSl(); V.toast(on ? `${s.name} added to your shortlist` : 'Removed from shortlist'); };
+  V.shortlist.on(syncSl); syncSl();
+  if (V.canQuote()) $('qBtn').onclick = () => V.quote({ stone: s, source: 'slab' }); else $('qBtn').classList.add('hidden');
+  if (!V.canQuote()) $('slBtn').parentNode.style.gridTemplateColumns = '1fr';
+
+  // similar stones
+  $('simFam').textContent = fam.toLowerCase();
+  const sim = cat.filter(x => x.family === s.family && x.slug !== s.slug);
+  const pick = sim.length >= 6 ? sim.slice(0).sort((a, b) => (a.slug > b.slug ? 1 : -1)).filter((_, i, a) => i % Math.max(1, Math.floor(a.length / 6)) === 0).slice(0, 6) : sim.concat(cat.filter(x => x.family !== s.family)).slice(0, 6);
+  $('sim').innerHTML = pick.map(x => `<a class="sc" href="slab.html?id=${x.slug}"><i style="background-image:url('${V.tex(x.slug)}'),url('${x.thumb}')"></i><b>${x.name}</b><small>${V.persona(x)[0]}</small></a>`).join('');
+
+  // light follows the cursor
+  $('slab').addEventListener('pointermove', e => { const r = $('slab').getBoundingClientRect(); $('sheen').style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%'); $('sheen').style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%'); });
+  $('slab').onclick = e => { const r = $('slab').getBoundingClientRect(); openZoom(2.4, [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]); };
+  $('zimg').src = src;
+  V.dock();
+}).catch(() => { $('page').innerHTML = `<div class="notfound"><div><h1>Something went wrong loading the stone.</h1><a class="btn" href="index.html">Back to Velura</a></div></div>`; });
+
+/* magnifying lens */
+function setupLens(im) {
+  const slab = $('slab'), lens = $('lens'), Z = 2.6;
+  lens.style.backgroundImage = `url('${im.src}')`;
+  slab.addEventListener('mousemove', e => {
+    const r = slab.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    lens.style.left = x + 'px'; lens.style.top = y + 'px';
+    lens.style.backgroundSize = `${r.width * Z}px ${r.height * Z}px`;
+    lens.style.backgroundPosition = `${-(x * Z - 110)}px ${-(y * Z - 110)}px`;
+  });
+}
+
+/* fullscreen pan + zoom */
+const Zs = { k: 1, x: 0, y: 0, min: 1, max: 4 };
+function fit() { const img = $('zimg'), W = innerWidth, H = innerHeight; Zs.min = Math.min(W / img.naturalWidth, H / img.naturalHeight); Zs.max = Math.max(Zs.min * 5, 3); }
+function apply() {
+  const img = $('zimg'), W = innerWidth, H = innerHeight, w = img.naturalWidth * Zs.k, h = img.naturalHeight * Zs.k;
+  Zs.x = w <= W ? (W - w) / 2 : Math.min(0, Math.max(W - w, Zs.x));
+  Zs.y = h <= H ? (H - h) / 2 : Math.min(0, Math.max(H - h, Zs.y));
+  img.style.transform = `translate(${Zs.x}px,${Zs.y}px) scale(${Zs.k})`;
+  $('zpct').textContent = Math.round(Zs.k / Zs.min * 100) + '%';
+}
+function zoomAt(k, cx, cy) { k = Math.max(Zs.min, Math.min(Zs.max, k)); Zs.x = cx - (cx - Zs.x) * k / Zs.k; Zs.y = cy - (cy - Zs.y) * k / Zs.k; Zs.k = k; apply(); }
+function openZoom(rel, at) {
+  const img = $('zimg'), go = () => {
+    fit(); $('zoom').classList.add('on'); document.body.style.overflow = 'hidden';
+    Zs.k = Zs.min; Zs.x = Zs.y = 0; apply();
+    if (rel > 1) { const W = innerWidth, H = innerHeight; Zs.k = Zs.min * rel; Zs.x = W / 2 - at[0] * img.naturalWidth * Zs.k; Zs.y = H / 2 - at[1] * img.naturalHeight * Zs.k; apply(); }
+  };
+  img.complete && img.naturalWidth ? go() : (img.onload = go);
+}
+function closeZoom() { $('zoom').classList.remove('on'); document.body.style.overflow = ''; }
+$('zclose').onclick = closeZoom;
+addEventListener('keydown', e => { if (e.key === 'Escape') closeZoom(); });
+$('zin').onclick = () => zoomAt(Zs.k * 1.5, innerWidth / 2, innerHeight / 2);
+$('zout').onclick = () => zoomAt(Zs.k / 1.5, innerWidth / 2, innerHeight / 2);
+$('zoom').addEventListener('wheel', e => { e.preventDefault(); zoomAt(Zs.k * Math.exp(-e.deltaY * .0015), e.clientX, e.clientY); }, { passive: false });
+(() => {
+  const z = $('zoom'), pts = new Map(); let last = null, pinch = null;
+  z.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; z.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); z.classList.add('drag'); last = [e.clientX, e.clientY]; if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), k: Zs.k }; } });
+  z.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 2 && pinch) { const [a, b] = [...pts.values()]; zoomAt(pinch.k * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); return; }
+    if (last) { Zs.x += e.clientX - last[0]; Zs.y += e.clientY - last[1]; last = [e.clientX, e.clientY]; apply(); }
+  });
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (!pts.size) { z.classList.remove('drag'); last = null; } else last = [...pts.values()][0]; };
+  z.addEventListener('pointerup', up); z.addEventListener('pointercancel', up);
+  z.addEventListener('dblclick', e => zoomAt(Zs.k > Zs.min * 1.2 ? Zs.min : Zs.min * 2.6, e.clientX, e.clientY));
+  addEventListener('resize', () => { if (z.classList.contains('on')) { fit(); apply(); } });
+})();
+</script>
+</body>
+</html>

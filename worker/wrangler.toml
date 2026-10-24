@@ -12,8 +12,8 @@ DAILY_TOTAL = "300"
 
 # Usage limits. Create once with:  npx wrangler kv namespace create RATE
 # then paste the id it prints below and uncomment.
-# [[kv_namespaces]]
-# binding = "RATE"
-# id = "PASTE_ID_HERE"
+[[kv_namespaces]]
+binding = "RATE"
+id = "dd1bf52a14f24d0bbcbfd489a2806924"
 
 # Secret (never commit it):  npx wrangler secret put FAL_KEY

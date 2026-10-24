@@ -22,8 +22,18 @@ if grep -q '^# \[\[kv_namespaces\]\]' wrangler.toml; then
   fi
 fi
 
-echo "› Paste your fal.ai API key when asked (fal.ai → Dashboard → Keys)"
-npx --yes wrangler@4 secret put FAL_KEY
+printf "› fal.ai API key for photoreal renders (fal.ai → Dashboard → Keys), or press Enter to skip for now: "
+read -r -s FK; echo
+if [ -n "$FK" ]; then printf '%s' "$FK" | npx --yes wrangler@4 secret put FAL_KEY; else echo "  Skipped — quotes and leads will still work; renders stay off until you add it."; fi
+
+if ! npx --yes wrangler@4 secret list 2>/dev/null | grep -q ADMIN_KEY; then
+  echo "› Creating a password for your leads dashboard"
+  ADMIN_KEY=$(openssl rand -hex 12)
+  printf '%s' "$ADMIN_KEY" | npx --yes wrangler@4 secret put ADMIN_KEY
+  echo "$ADMIN_KEY" > ../.leads-key && chmod 600 ../.leads-key
+  grep -qx '.leads-key' ../.gitignore 2>/dev/null || echo '.leads-key' >> ../.gitignore
+  echo "  Saved to .leads-key (not committed). You'll need it to open leads.html."
+fi
 
 echo "› Deploying"
 dep=$(npx --yes wrangler@4 deploy 2>&1 | tee /dev/stderr)
@@ -34,8 +44,15 @@ echo "› Checking $url/health"
 curl -s "$url/health"; echo
 
 cd ..
-sed -i.bak "s#https://velura-render.YOUR-SUBDOMAIN.workers.dev#$url#" photo.html && rm -f photo.html.bak
+sed -i.bak "s#https://velura-render.YOUR-SUBDOMAIN.workers.dev#$url#" velura.js && rm -f velura.js.bak
+
+if grep -q "whatsapp: ''," velura.js; then
+  printf "› WhatsApp number for enquiries (country code + number, digits only, e.g. 919876543210), or press Enter to skip: "
+  read -r WA
+  WA=$(printf '%s' "$WA" | tr -cd '0-9')
+  if [ -n "$WA" ]; then sed -i.bak "s#whatsapp: '',#whatsapp: '$WA',#" velura.js && rm -f velura.js.bak; echo "  WhatsApp set."; fi
+fi
 echo
 echo "✓ Renderer live at $url"
-echo "  photo.html now points at it. Publish with:"
+echo "  velura.js now points at it. Publish with:"
 echo "    git add -A && git commit -m 'Switch on photoreal render' && git push"

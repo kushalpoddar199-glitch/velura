@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Velura — Leads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#050505;--b2:#0b0b0a;--b3:#141312;--line:rgba(245,239,230,.10);--line-2:rgba(245,239,230,.18);--ivory:#f5efe6;--dim:rgba(245,239,230,.45);--dim-2:rgba(245,239,230,.68);--gold:#c9a96e;--serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--ivory);font-family:var(--sans);font-weight:300;min-height:100vh}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px clamp(16px,4vw,48px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--serif);letter-spacing:.44em;font-size:17px;text-decoration:none}
+.logo span{font-family:var(--sans);font-size:10px;letter-spacing:.3em;color:var(--dim);margin-left:14px;text-transform:uppercase}
+.btn{height:38px;padding:0 16px;border:1px solid var(--line-2);border-radius:999px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#140f07;font-weight:500}
+main{padding:clamp(20px,4vw,48px)}
+#login{max-width:420px;margin:12vh auto;text-align:center}
+#login h1{font-family:var(--serif);font-weight:400;font-size:38px;margin-bottom:10px}
+#login p{color:var(--dim-2);font-size:14px;line-height:1.6;margin-bottom:26px}
+#login input{width:100%;height:48px;background:transparent;border:none;border-bottom:1px solid var(--line-2);color:var(--ivory);font:inherit;font-size:16px;text-align:center;outline:none;margin-bottom:22px}
+#login input:focus{border-bottom-color:var(--gold)}
+.err{color:#e7a38d;font-size:13px;margin-top:14px;min-height:18px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:34px}
+.tile{background:var(--black);padding:22px 22px 20px}
+.tile small{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim)}
+.tile b{display:block;font-family:var(--serif);font-weight:400;font-size:42px;margin-top:10px}
+.tile em{font-style:normal;font-size:13px;color:var(--dim-2)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.bar h2{font-family:var(--serif);font-weight:400;font-size:28px}
+.bar input{height:38px;min-width:220px;background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:0 16px;color:var(--ivory);font:inherit;font-size:13px;outline:none}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:900px}
+th{text-align:left;font-weight:400;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);padding:14px;border-bottom:1px solid var(--line);background:var(--b2);position:sticky;top:0}
+td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+tr:hover td{background:rgba(245,239,230,.02)}
+.st{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.st i{width:34px;height:34px;border-radius:2px;background:#222 center/cover;flex:none}
+.st div small{display:block;color:var(--dim);font-size:11px}
+.muted{color:var(--dim)}
+.ct a{text-decoration:none;display:inline-flex;margin-right:10px;color:var(--gold);font-size:12px}
+.pv{width:72px;height:54px;border-radius:2px;background:#151413 center/cover;border:1px solid var(--line-2)}
+.empty{padding:60px 20px;text-align:center;color:var(--dim)}
+#modal{position:fixed;inset:0;background:rgba(5,5,5,.85);display:none;place-items:center;z-index:9;padding:20px}
+#modal.on{display:grid}
+#modal img{max-width:min(960px,100%);max-height:86vh;border-radius:3px}
+@media (max-width:760px){.tiles{grid-template-columns:1fr 1fr}}
+</style>
+<script src="velura.js"></script>
+</head>
+<body>
+<header><a class="logo" href="index.html">VELURA<span>Leads</span></a><div id="hdr" style="display:none;gap:8px"><button class="btn" id="csv">Export CSV</button><button class="btn" id="refresh">Refresh</button><button class="btn" id="out">Sign out</button></div></header>
+<main>
+  <section id="login">
+    <h1>Quote requests</h1>
+    <p>Enter the leads password created when you deployed Velura. It’s saved in the file <code>.leads-key</code> in your velura folder.</p>
+    <form id="lf"><input id="key" type="password" placeholder="Leads password" autocomplete="current-password"><button class="btn solid" style="width:100%;justify-content:center;height:46px">Open leads</button></form>
+    <div class="err" id="err"></div>
+  </section>
+  <section id="dash" style="display:none">
+    <div class="tiles">
+      <div class="tile"><small>Total requests</small><b id="tTotal">0</b><em>all time</em></div>
+      <div class="tile"><small>Last 7 days</small><b id="tWeek">0</b><em id="tWeekNote"></em></div>
+      <div class="tile"><small>Area requested</small><b id="tArea">0</b><em>sq ft, all requests</em></div>
+      <div class="tile"><small>Most requested</small><b id="tTop" style="font-size:26px;line-height:1.2;margin-top:16px">—</b><em id="tTopN"></em></div>
+    </div>
+    <div class="bar"><h2>Requests</h2><input id="q" placeholder="Search name, stone, city…"></div>
+    <div class="wrap"><table><thead><tr><th>When</th><th>Stone</th><th>Requirement</th><th>Customer</th><th>Contact</th><th>Notes</th><th>Room</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+</main>
+<div id="modal"><img id="mimg" alt="Room preview"></div>
+<script>
+'use strict';
+const V = window.Velura, $ = id => document.getElementById(id), esc = V.esc;
+let leads = [], cat = {}, KEY = '';
+try { KEY = sessionStorage.getItem('velura.leadsKey') || ''; } catch (e) { }
+const api = p => V.config.api.replace(/\/$/, '') + p;
+
+async function load() {
+  if (!V.apiReady()) { $('err').textContent = 'Velura’s Worker isn’t deployed yet — run bash worker/deploy.sh first.'; return; }
+  $('err').textContent = '';
+  try {
+    const r = await fetch(api('/leads?key=' + encodeURIComponent(KEY)));
+    if (r.status === 401) { $('err').textContent = 'That password didn’t work.'; showLogin(); return; }
+    const d = await r.json(); leads = d.leads || [];
+    try { sessionStorage.setItem('velura.leadsKey', KEY); } catch (e) { }
+    $('login').style.display = 'none'; $('dash').style.display = ''; $('hdr').style.display = 'flex';
+    draw();
+  } catch (e) { $('err').textContent = 'Couldn’t reach the Worker. Check your connection.'; showLogin(); }
+}
+function showLogin() { $('login').style.display = ''; $('dash').style.display = 'none'; $('hdr').style.display = 'none'; }
+const sqft = l => { const a = parseFloat(l.area); if (!a) return 0; return /m/.test(l.unit) ? a * 10.7639 : a; };
+function draw() {
+  const q = $('q').value.trim().toLowerCase();
+  const list = leads.filter(l => !q || [l.name, l.stone, l.city, l.phone, l.notes].join(' ').toLowerCase().includes(q));
+  const week = leads.filter(l => Date.now() - new Date(l.ts) < 7 * 864e5).length;
+  $('tTotal').textContent = leads.length; $('tWeek').textContent = week;
+  $('tArea').textContent = Math.round(leads.reduce((a, l) => a + sqft(l), 0)).toLocaleString('en-IN');
+  const counts = {}; leads.forEach(l => counts[l.stone] = (counts[l.stone] || 0) + 1);
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  $('tTop').textContent = top ? top[0] : '—'; $('tTopN').textContent = top ? `${top[1]} request${top[1] > 1 ? 's' : ''}` : '';
+  $('rows').innerHTML = list.length ? list.map(l => {
+    const s = cat[l.slug], d = new Date(l.ts), digits = (l.phone || '').replace(/\D/g, '');
+    const wa = digits ? `https://wa.me/${digits.length === 10 ? '91' + digits : digits}?text=${encodeURIComponent(`Hi ${l.name}, thanks for your interest in ${l.stone} — this is Velura.`)}` : '';
+    return `<tr>
+      <td class="muted" style="white-space:nowrap">${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}<br>${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</td>
+      <td><div class="st"><i style="background-image:url('${s ? s.thumb : ''}')"></i><div>${esc(l.stone)}<small>${esc([l.size, l.finish].filter(Boolean).join(' · '))}</small></div></div></td>
+      <td>${esc(l.use || '')}${l.area ? `<br><span class="muted">${esc(l.area)} ${esc(l.unit)}</span>` : ''}</td>
+      <td>${esc(l.name)}<br><span class="muted">${esc(l.city || l.cityGuess || '')}${l.country ? ' · ' + esc(l.country) : ''}</span></td>
+      <td class="ct">${esc(l.phone)}<br>${wa ? `<a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}<a href="tel:${esc(l.phone)}">Call</a></td>
+      <td class="muted" style="max-width:240px">${esc(l.notes || '—')}</td>
+      <td><button class="pv" data-img="${esc(l.id)}" title="View room preview"></button></td></tr>`;
+  }).join('') : `<tr><td colspan="7" class="empty">${leads.length ? 'No requests match that search.' : 'No quote requests yet. They’ll appear here as soon as a customer sends one.'}</td></tr>`;
+  // lazy-load previews
+  $('rows').querySelectorAll('.pv').forEach(async b => {
+    try { const r = await fetch(api('/leads?key=' + encodeURIComponent(KEY) + '&img=' + b.dataset.img)); const d = await r.json(); if (d.preview) { b.style.backgroundImage = `url('${d.preview}')`; b.dataset.src = d.preview; } else b.replaceWith(Object.assign(document.createElement('span'), { className: 'muted', textContent: '—' })); } catch (e) { }
+  });
+}
+function csv() {
+  const cols = ['ts', 'stone', 'size', 'finish', 'pattern', 'use', 'area', 'unit', 'city', 'name', 'phone', 'notes', 'country', 'source'];
+  const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const body = [cols.join(','), ...leads.map(l => cols.map(c => q(l[c])).join(','))].join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([body], { type: 'text/csv' })); a.download = `velura-leads-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+}
+$('lf').onsubmit = e => { e.preventDefault(); KEY = $('key').value.trim(); if (KEY) load(); };
+$('q').oninput = draw; $('csv').onclick = csv; $('refresh').onclick = load;
+$('out').onclick = () => { KEY = ''; try { sessionStorage.removeItem('velura.leadsKey'); } catch (e) { } showLogin(); };
+$('rows').onclick = e => { const b = e.target.closest('.pv'); if (b && b.dataset.src) { $('mimg').src = b.dataset.src; $('modal').classList.add('on'); } };
+$('modal').onclick = () => $('modal').classList.remove('on');
+V.catalog().then(c => { c.forEach(s => cat[s.slug] = s); if (leads.length) draw(); }).catch(() => { });
+if (KEY) load();
+</script>
+</body>
+</html>

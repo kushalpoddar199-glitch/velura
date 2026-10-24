@@ -279,6 +279,7 @@ footer{padding:70px 0 40px;border-top:1px solid var(--line)}
   .reveal{opacity:1;transform:none}
 }
 </style>
+<script src="velura.js"></script>
 </head>
 <body>
 
@@ -476,7 +477,7 @@ footer{padding:70px 0 40px;border-top:1px solid var(--line)}
 /* ── Business details — fill these in ─────────────────────────────
    whatsapp: country code + number, digits only, e.g. '919876543210'
    instagram: full profile URL                                       */
-const CONTACT = { whatsapp: '', instagram: '' };
+const CONTACT = window.Velura.config;
 
 const $ = id => document.getElementById(id);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -573,7 +574,7 @@ new IntersectionObserver(([e]) => { if (!e.isIntersecting) clearTimeout(heroTime
 /* ── marquee ── */
 function buildMarquee() {
   const pick = catalog.filter((s, i) => i % 5 === 0).slice(0, 26);
-  const html = pick.map(s => `<a href="photo.html?stone=${s.slug}"><span style="background-image:url('${s.thumb}')"></span>${s.name}</a>`).join('');
+  const html = pick.map(s => `<a href="slab.html?id=${s.slug}"><span style="background-image:url('${s.thumb}')"></span>${s.name}</a>`).join('');
   $('mtrack').innerHTML = html + html;
 }
 
@@ -603,11 +604,11 @@ function buildCards() {
   const list = catalog.filter(s => fam === 'all' || s.family === fam);
   $('cards').innerHTML = list.map(s => {
     const [p, l] = persona(s);
-    return `<a class="pc" href="photo.html?stone=${s.slug}" draggable="false">
+    return `<a class="pc" href="slab.html?id=${s.slug}" draggable="false">
       <div class="bg" style="background-image:url('${s.thumb}');filter:blur(6px);transform:scale(1.1)"></div><div class="bg hi" data-src="${tex(s.slug)}"></div>
       <div class="mk">VELURA</div><div class="mt">Natural stone<br>Timeless spaces</div>
       <div class="txt"><h4>${s.name}</h4><div class="r"></div><div class="p">${p}</div><div class="l">${l}</div></div>
-      <span class="try">See it on my floor →</span></a>`;
+      <span class="try" data-try="${s.slug}">See it on my floor →</span></a>`;
   }).join('');
   if (cardObs) cardObs.disconnect();
   cardObs = new IntersectionObserver(es => es.forEach(e => {
@@ -628,7 +629,10 @@ function updateProg() {
   c.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; down = { x: e.clientX, l: c.scrollLeft }; moved = 0; });
   addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; moved = Math.max(moved, Math.abs(dx)); if (moved > 4) c.classList.add('drag'); c.scrollLeft = down.l - dx; });
   addEventListener('pointerup', () => { if (!down) return; down = null; setTimeout(() => c.classList.remove('drag'), 0); });
-  c.addEventListener('click', e => { if (moved > 6) { e.preventDefault(); moved = 0; } }, true);
+  c.addEventListener('click', e => {
+    if (moved > 6) { e.preventDefault(); e.stopPropagation(); moved = 0; return; }
+    const t = e.target.closest('[data-try]'); if (t) { e.preventDefault(); location.href = 'photo.html?stone=' + t.dataset.try; }
+  }, true);
   const step = d => c.scrollBy({ left: d * c.clientWidth * .8, behavior: 'smooth' });
   $('cPrev').onclick = () => step(-1); $('cNext').onclick = () => step(1);
   addEventListener('resize', updateProg);
@@ -639,7 +643,7 @@ $('faqList').onclick = e => { const b = e.target.closest('button'); if (b) b.par
 
 /* boot */
 fetch('catalog.json').then(r => r.json()).then(d => {
-  catalog = d; buildHero(); buildMarquee(); buildSteps(); buildFilter(); buildCards();
+  catalog = d; buildHero(); buildMarquee(); buildSteps(); buildFilter(); buildCards(); window.Velura.dock();
 }).catch(() => { $('hName').textContent = 'Natural stone'; });
 </script>
 </body>
