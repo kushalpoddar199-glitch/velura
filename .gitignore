@@ -1,3 +1,7 @@
 usdz/
 usdz/
 .leads-key
+
+# local tooling caches
+.wrangler/
+worker/.wrangler/

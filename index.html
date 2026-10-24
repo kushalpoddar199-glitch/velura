@@ -486,14 +486,15 @@ const HERO = [
   ['gold-pietra-onyx', 'The illuminated one'], ['emperador-grey', 'The old soul'], ['raggio-verde-ii', 'The unconventional one'],
   ['beige-classic-tvt', 'The understated minimalist'], ['diamond-onyx', 'The everlasting essence'], ['arctic-blue', 'The maximalist'],
 ];
-const COLLECTIONS = { all: 'All', white: 'Whites', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
+const COLLECTIONS = { all: 'All', white: 'Whites', black: 'Blacks', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
 const PERSONA = {
-  white: ['The quiet statement', 'Luminous, sculptural and timeless.'], grey: ['The modern classic', 'Composed, architectural, contemporary.'],
+  white: ['The quiet statement', 'Luminous, sculptural and timeless.'], black: ['The bold minimalist', 'Striking, modern, timeless.'], grey: ['The modern classic', 'Composed, architectural, contemporary.'],
   beige: ['The everlasting warmth', 'Soft, refined and versatile.'], onyx: ['The illuminated one', 'Translucent, luminous and rare.'],
   gold: ['The maximalist', 'Dramatic and impossible to ignore.'], green: ['The unconventional one', 'Bold, organic, distinctive.'],
   blue: ['The unexpected', 'Cool depth and quiet drama.'], pink: ['The romantic', 'Blush tones, quiet confidence.'],
 };
 const SPECIAL = [
+  [/portoro|black.*gold|nero.*oro/i, 'The maximalist', 'Gold veins on black.'], [/marquina|nero|black/i, 'The bold minimalist', 'Striking, modern, timeless.'],
   [/statuario/i, 'The iconic one', 'Classic, elegant and refined.'], [/calacatta/i, 'The quiet statement', 'Bold veins on a luminous ground.'],
   [/emperador/i, 'The old soul', 'Rich, grounded and warm.'], [/tvt|travertin/i, 'The understated minimalist', 'Earthy, tactile, effortlessly warm.'],
   [/crema|marfil/i, 'The everlasting essence', 'A natural warm canvas.'], [/amazon/i, 'The rare one', 'Ocean light, held in stone.'],

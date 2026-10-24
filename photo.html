@@ -900,8 +900,9 @@ function autoAlign() {
 }
 
 /* ── catalogue & stone picker ────────────────────────────── */
-const COLLECTIONS = { all: 'All', white: 'Whites', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
+const COLLECTIONS = { all: 'All', white: 'Whites', black: 'Blacks', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
 const PERSONA = {
+  black: ['The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
   white: ['The quiet statement', 'Luminous, sculptural and timeless. For spaces that don’t need to shout.'],
   grey: ['The modern classic', 'Composed and architectural. Sleek, for contemporary living.'],
   beige: ['The everlasting warmth', 'Soft, refined and versatile — a natural warm canvas for every space.'],
@@ -912,6 +913,8 @@ const PERSONA = {
   pink: ['The romantic', 'Blush tones with quiet confidence. Soft, never sweet.'],
 };
 const HEROES = [
+  [/portoro|black.*gold|nero.*oro/i, 'The maximalist', 'Gold veins on black. Dramatic, expressive and impossible to ignore.'],
+  [/marquina|nero|black/i, 'The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
   [/statuario/i, 'The iconic one', 'Classic, elegant and refined. A timeless choice for enduring spaces.'],
   [/calacatta/i, 'The quiet statement', 'Clean, sculptural and timeless. Bold veins on a luminous ground.'],
   [/emperador/i, 'The old soul', 'Rich, grounded and warm. For interiors with depth and character.'],

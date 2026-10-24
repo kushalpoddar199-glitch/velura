@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 echo "› Checking Cloudflare login"
-npx --yes wrangler@4 whoami >/dev/null 2>&1 || npx --yes wrangler@4 login
+npx --yes wrangler@4 whoami 2>&1 | grep -qi "logged in\|associated with the email" || npx --yes wrangler@4 login
 
 if grep -q '^# \[\[kv_namespaces\]\]' wrangler.toml; then
   echo "› Creating usage-limit store (KV)"
@@ -41,7 +41,7 @@ url=$(printf '%s' "$dep" | grep -oE 'https://velura-render\.[a-z0-9-]+\.workers\
 [ -n "$url" ] || { echo "! Couldn't find the Worker URL in the output above."; exit 1; }
 
 echo "› Checking $url/health"
-curl -s "$url/health"; echo
+curl -s --max-time 10 "$url/health" || echo "  (not reachable yet — new workers.dev addresses can take a few minutes; carrying on)"; echo
 
 cd ..
 sed -i.bak "s#https://velura-render.YOUR-SUBDOMAIN.workers.dev#$url#" velura.js && rm -f velura.js.bak

@@ -17,8 +17,9 @@
   const apiReady = () => !!config.api && !config.api.includes('YOUR-SUBDOMAIN');
 
   /* ── stone knowledge derived from the catalogue ─────────────── */
-  const COLLECTIONS = { all: 'All', white: 'Whites', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
+  const COLLECTIONS = { all: 'All', white: 'Whites', black: 'Blacks', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
   const PERSONA = {
+    black: ['The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
     white: ['The quiet statement', 'Luminous, sculptural and timeless. For spaces that don’t need to shout.'],
     grey: ['The modern classic', 'Composed and architectural. Sleek, for contemporary living.'],
     beige: ['The everlasting warmth', 'Soft, refined and versatile — a natural warm canvas for every space.'],
@@ -29,6 +30,8 @@
     pink: ['The romantic', 'Blush tones with quiet confidence. Soft, never sweet.'],
   };
   const SPECIAL = [
+    [/portoro|black.*gold|nero.*oro/i, 'The maximalist', 'Gold veins on black. Dramatic, expressive and impossible to ignore.'],
+    [/marquina|nero|black/i, 'The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
     [/statuario/i, 'The iconic one', 'Classic, elegant and refined. A timeless choice for enduring spaces.'],
     [/calacatta/i, 'The quiet statement', 'Clean, sculptural and timeless. Bold veins on a luminous ground.'],
     [/emperador/i, 'The old soul', 'Rich, grounded and warm. For interiors with depth and character.'],
@@ -52,6 +55,10 @@
     if (isTvt) return {
       best: ['Living & dining floors', 'Walls', 'Bathrooms', 'Outdoor (when sealed)'],
       note: 'Travertine has natural pores. For floors it is usually supplied filled and honed, and should be sealed.',
+    };
+    if (s.family === 'black') return {
+      best: ['Feature walls', 'Living & dining floors', 'Bathrooms', 'Accent inlays'],
+      note: 'Dark polished stone shows dust, footprints and any etch marks more readily than light stone. A honed finish is calmer on busy floors; polished is at its best on walls and low-traffic rooms. Seal well.',
     };
     return {
       best: ['Living & dining floors', 'Feature walls', 'Bathrooms', 'Staircases'],
