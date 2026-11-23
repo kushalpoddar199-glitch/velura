@@ -105,28 +105,6 @@ header{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:
 #feature.swap .anim{opacity:0;transform:translateY(12px);transition-delay:0s}
 .cta{padding:16px 24px 20px}
 .cta #render{margin-top:0}
-.acts2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.acts2.one{grid-template-columns:1fr}
-.acts2 button,.acts2 a{text-decoration:none;height:42px;border:1px solid var(--line-2);border-radius:2px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:9px;color:var(--dim-2);transition:color .3s,border-color .3s,background .3s}
-.acts2 button:hover,.acts2 a:hover{color:var(--gold);border-color:var(--gold-dim)}
-.acts2 svg{width:14px;height:14px;flex:none}
-#detailLink{display:block;text-align:center;margin-top:12px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s}
-#detailLink:hover{color:var(--gold)}
-@media (max-width:860px){#detailLink{margin-top:8px}}
-.acts2 .on{color:var(--gold);border-color:var(--gold-dim);background:var(--gold-glow)}
-#cmp{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:6px;padding:5px 6px 5px 14px;background:rgba(14,13,12,.86);border:1px solid var(--line);border-radius:999px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-#cmp .lab{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-right:4px}
-#cmp button{position:relative;height:34px;padding:0 12px 0 4px;border-radius:999px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim-2);border:1px solid transparent;transition:all .3s;white-space:nowrap}
-#cmp button i{width:26px;height:26px;border-radius:50%;background:#222 center/cover;flex:none}
-#cmp button.on{border-color:var(--gold);color:var(--ivory);background:var(--gold-glow)}
-#cmp button kbd{font:inherit;font-size:9px;color:var(--dim);margin-left:2px}
-@media (max-width:860px){#cmp{top:6px;padding:4px}#cmp .lab,#cmp button span,#cmp button kbd{display:none}#cmp button{padding:0 4px}}
-#samples{margin-top:30px;text-align:left}
-#samples .lab{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:14px}
-#samples .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-.room{position:relative;aspect-ratio:4/3;border-radius:2px;overflow:hidden;background:#151413 center/cover;border:1px solid var(--line);transition:border-color .3s,transform .5s var(--ease)}
-.room:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
-.room span{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(transparent,rgba(0,0,0,.75));text-align:left}
 
 /* collections */
 #cols{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:6px 24px 0;position:relative;border-bottom:1px solid var(--line)}
@@ -232,7 +210,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   .tips{grid-template-columns:1fr}
 }
 </style>
-<script src="velura.js"></script>
 </head>
 <body>
 
@@ -261,7 +238,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <div><b>Show the floor</b>The more floor in frame, the better the result.</div>
       <div><b>Use daylight</b>Soft natural light gives the most honest stone colour.</div>
     </div>
-    <div id="samples" class="hidden"><div class="lab">No photo handy? Try one of ours</div><div class="row" id="sampleRow"></div></div>
     <div class="privacy">Floor detection runs on your device. Your photo is only sent to our renderer when you tap Render.</div>
   </div>
 </main>
@@ -269,7 +245,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 <!-- Studio -->
 <section id="studio" class="hidden">
   <div id="stage">
-    <div id="cmp" class="hidden"></div>
     <div id="canvasWrap">
       <canvas id="gl"></canvas>
       <canvas id="aiCv" class="hidden"></canvas>
@@ -308,12 +283,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         <div class="persona anim" id="stonePersona"></div>
         <div class="line anim" id="stoneLine"></div>
       </div>
-      <div class="cta"><button id="render" disabled><span id="renderLbl">Render photoreal</span><small id="renderSub">about 20 sec</small></button>
-        <div class="acts2" id="acts2">
-          <button id="slBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 13.5S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.5-6 7.5z"/></svg><span>Shortlist</span></button>
-          <button id="quoteBtn" class="hidden"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 2.5h7l3 3v8H3z"/><path d="M5.5 8h5M5.5 10.5h3.5"/></svg>Request a quote</button>
-        </div>
-        <a id="detailLink" href="slab.html">Stone details &amp; specifications →</a></div>
+      <div class="cta"><button id="render" disabled><span id="renderLbl">Render photoreal</span><small id="renderSub">about 20 sec</small></button></div>
     </div>
     <div class="tabs"><button class="tab on" data-tab="stone">Stone</button><button class="tab" data-tab="layout">Layout</button></div>
     <div class="pbody">
@@ -333,7 +303,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         <div class="label">Format</div><div class="chips" id="sizes"></div>
         <div class="label">Pattern</div><div class="chips" id="patterns"></div>
         <div class="label">Finish</div><div class="chips" id="finishes"></div>
-        <div class="label">Joints</div><div class="chips" id="joints"></div>
         <div class="label">Rotation <span id="angleVal">0°</span></div>
         <input type="range" id="angle" min="-45" max="45" step="0.5" value="0">
       </div>
@@ -373,10 +342,8 @@ const CFG = {
   ],
   transformersUrl: 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.0',
   // Photoreal renderer (Cloudflare Worker in /worker). Set after `wrangler deploy`.
-  renderApi: new URLSearchParams(location.search).get('api') || window.Velura.config.api,
+  renderApi: new URLSearchParams(location.search).get('api') || 'https://velura-render.YOUR-SUBDOMAIN.workers.dev',
   renderMaxSide: 1280,
-  // Enquiries: country code + number, digits only (e.g. '919876543210'). Empty hides the button.
-  whatsapp: window.Velura.config.whatsapp,
 };
 
 const SIZES = [
@@ -394,7 +361,7 @@ const S = {
   W: 0, H: 0, rgba: null, mask: null, catalog: [], stone: null, tex: new Map(),
   size: SIZES[1], pattern: 0, finish: FINISHES[0], angle: 0, offset: [0, 0],
   horizon: 0, roll: 0, light: .85, vein: 1, tool: 'none', split: .5, brush: 'add',
-  floorMean: .5, exposure: 1, family: 'all', query: '', ready: false, maskVer: 0, photoId: 0, ai: null, rendering: false, mix: 1, prevTex: null, list: [], seam: true,
+  floorMean: .5, exposure: 1, family: 'all', query: '', ready: false, maskVer: 0, photoId: 0, ai: null, rendering: false, mix: 1, prevTex: null, list: [],
 };
 
 /* ── utilities ───────────────────────────────────────────── */
@@ -475,7 +442,7 @@ precision highp float;
 in vec2 vUv; out vec4 o;
 uniform sampler2D uOrig, uMask, uIllum, uDist, uRefl, uStone, uPrev;
 uniform vec2 uRes, uTile, uSlab, uOffset;
-uniform float uF, uTheta, uRoll, uCamH, uAngle, uGloss, uLight, uExposure, uSplit, uJoint, uHasStone, uMix, uHasPrev, uSeam;
+uniform float uF, uTheta, uRoll, uCamH, uAngle, uGloss, uLight, uExposure, uSplit, uJoint, uHasStone, uMix, uHasPrev;
 uniform int uPattern;
 
 float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
@@ -521,20 +488,14 @@ void main(){
   vec2 org = vec2(hash(key), hash(key + 17.17))*(1. - win);
   vec2 suv = org + fl*win;
   vec2 gc = g*win, gx = dFdx(gc), gy = dFdy(gc);
-  if (uSeam > .5) {                                   // one continuous surface: the slab mirrored edge-to-edge, no seams
-    vec2 sq = q/uSlab + vec2(.37, .21);
-    vec2 mm = mod(sq, 2.);
-    suv = mix(mm, 2. - mm, step(1., mm));
-    gx = dFdx(sq); gy = dFdy(sq);
-  }
-  float tv = 1. + (hash(cell + 3.1) - .5)*.05*(1. - uSeam);
+  float tv = 1. + (hash(cell + 3.1) - .5)*.05;
 
   // joints
   vec2 aa = fwidth(gs)*.75 + 1e-5;
   vec2 e = min(f, 1.-f);
   vec2 jw = vec2(uJoint)/uTile*.5;
   vec2 ln = 1. - smoothstep(jw, jw + aa, e);
-  gJoint = max(ln.x, ln.y)*clamp(1. - 6.*max(aa.x, aa.y), 0., 1.)*(1. - uSeam);
+  gJoint = max(ln.x, ln.y)*clamp(1. - 6.*max(aa.x, aa.y), 0., 1.);
 
   // room light + shadows
   gL = texture(uIllum, vUv).r*2.;
@@ -579,7 +540,7 @@ function initGL() {
   const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  for (const n of ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uRes', 'uTile', 'uSlab', 'uOffset', 'uF', 'uTheta', 'uRoll', 'uCamH', 'uAngle', 'uGloss', 'uLight', 'uExposure', 'uSplit', 'uJoint', 'uHasStone', 'uPattern', 'uPrev', 'uMix', 'uHasPrev', 'uSeam'])
+  for (const n of ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uRes', 'uTile', 'uSlab', 'uOffset', 'uF', 'uTheta', 'uRoll', 'uCamH', 'uAngle', 'uGloss', 'uLight', 'uExposure', 'uSplit', 'uJoint', 'uHasStone', 'uPattern', 'uPrev', 'uMix', 'uHasPrev'])
     U[n] = gl.getUniformLocation(prog, n);
   ['uOrig', 'uMask', 'uIllum', 'uDist', 'uRefl', 'uStone', 'uPrev'].forEach((n, i) => gl.uniform1i(U[n], i));
   aniso = gl.getExtension('EXT_texture_filter_anisotropic');
@@ -655,7 +616,6 @@ function draw() {
     gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, st.tex);
   }
   gl.uniform1f(U.uMix, S.mix);
-  gl.uniform1f(U.uSeam, S.seam ? 1 : 0);
   gl.uniform1f(U.uHasPrev, S.prevTex ? 1 : 0);
   if (S.prevTex) { gl.activeTexture(gl.TEXTURE6); gl.bindTexture(gl.TEXTURE_2D, S.prevTex.tex); }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -900,9 +860,8 @@ function autoAlign() {
 }
 
 /* ── catalogue & stone picker ────────────────────────────── */
-const COLLECTIONS = { all: 'All', white: 'Whites', black: 'Blacks', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
+const COLLECTIONS = { all: 'All', white: 'Whites', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
 const PERSONA = {
-  black: ['The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
   white: ['The quiet statement', 'Luminous, sculptural and timeless. For spaces that don’t need to shout.'],
   grey: ['The modern classic', 'Composed and architectural. Sleek, for contemporary living.'],
   beige: ['The everlasting warmth', 'Soft, refined and versatile — a natural warm canvas for every space.'],
@@ -913,8 +872,6 @@ const PERSONA = {
   pink: ['The romantic', 'Blush tones with quiet confidence. Soft, never sweet.'],
 };
 const HEROES = [
-  [/portoro|black.*gold|nero.*oro/i, 'The maximalist', 'Gold veins on black. Dramatic, expressive and impossible to ignore.'],
-  [/marquina|nero|black/i, 'The bold minimalist', 'Striking, modern and timeless. A statement in simplicity.'],
   [/statuario/i, 'The iconic one', 'Classic, elegant and refined. A timeless choice for enduring spaces.'],
   [/calacatta/i, 'The quiet statement', 'Clean, sculptural and timeless. Bold veins on a luminous ground.'],
   [/emperador/i, 'The old soul', 'Rich, grounded and warm. For interiors with depth and character.'],
@@ -937,15 +894,7 @@ async function loadCatalog() {
     `<button class="col${f === 'all' ? ' on' : ''}" data-fam="${f}">${COLLECTIONS[f] || f}<sup>${f === 'all' ? S.catalog.length : counts[f]}</sup></button>`).join(''));
   drawStrip();
   requestAnimationFrame(moveColLine);
-  const qs = new URLSearchParams(location.search);
-  const cmp = (qs.get('compare') || '').split(',').filter(sl => S.catalog.some(s => s.slug === sl));
-  if (cmp.length) Velura.shortlist.set([...new Set([...cmp, ...Velura.shortlist.get()])]);
-  const want = qs.get('stone') || cmp[0];
-  const first = (want && S.catalog.find(s => s.slug === want)) || S.catalog.find(s => s.slug === 'statuario') || S.catalog[0];
-  if (want && first && first.slug === want && first.family !== S.family) {
-    S.family = first.family; drawStrip();
-    $('cols').querySelectorAll('.col').forEach(c => c.classList.toggle('on', c.dataset.fam === first.family)); requestAnimationFrame(moveColLine);
-  }
+  const first = S.catalog.find(s => s.slug === 'statuario') || S.catalog[0];
   if (first) selectStone(first, { scroll: true });
 }
 function moveColLine() {
@@ -1160,7 +1109,7 @@ function paint(cx, cy) {
 const aiCv = $('aiCv');
 function settingsKey() {
   return JSON.stringify([S.photoId, S.maskVer, S.stone && S.stone.slug, S.size.id || S.size.label, S.pattern, S.finish.id || S.finish.label,
-    S.angle, S.offset.map(v => +v.toFixed(3)), Math.round(S.horizon), +S.roll.toFixed(3), S.vein, S.light, S.seam]);
+    S.angle, S.offset.map(v => +v.toFixed(3)), Math.round(S.horizon), +S.roll.toFixed(3), S.vein, S.light]);
 }
 function aiActive() { return !!(S.ai && S.ai.key === settingsKey()); }
 function apiReady() { return CFG.renderApi && !CFG.renderApi.includes('YOUR-SUBDOMAIN'); }
@@ -1171,7 +1120,6 @@ function syncAI(aiOn) {
   tag.classList.toggle('hidden', !S.stone || S.tool === 'compare');
   tag.classList.toggle('ai', aiOn);
   tag.textContent = aiOn ? 'Photoreal · AI render' : 'Live preview';
-  updateEnquire();
   const btn = $('render');
   btn.disabled = S.rendering || !S.stone || !S.tex.has(S.stone && S.stone.slug);
   btn.classList.toggle('done', aiOn);
@@ -1279,56 +1227,6 @@ async function share() {
 }
 
 /* ── wire up ─────────────────────────────────────────────── */
-/* shortlist + compare + quote */
-let lastCmp = '';
-function updateEnquire() {
-  const V = window.Velura, sl = V.shortlist.get();
-  const on = !!(S.stone && sl.includes(S.stone.slug)), b = $('slBtn');
-  b.classList.toggle('on', on); b.querySelector('span').textContent = on ? 'Shortlisted' : 'Shortlist';
-  if (S.stone) $('detailLink').href = 'slab.html?id=' + S.stone.slug;
-  const q = V.canQuote(); $('quoteBtn').classList.toggle('hidden', !q); $('acts2').classList.toggle('one', !q);
-  // compare bar: shortlisted stones, one tap to swap on the same photo
-  const key = sl.join(',') + '|' + (S.stone && S.stone.slug) + '|' + S.ready;
-  if (key === lastCmp) return; lastCmp = key;
-  const items = sl.map(x => S.catalog.find(s => s.slug === x)).filter(Boolean);
-  const show = S.ready && items.length >= 2;
-  $('cmp').classList.toggle('hidden', !show);
-  if (show) $('cmp').innerHTML = '<span class="lab">Compare</span>' + items.map((s, i) =>
-    `<button data-slug="${s.slug}" class="${S.stone && S.stone.slug === s.slug ? 'on' : ''}" title="${s.name} (${i + 1})"><i style="background-image:url('${s.thumb}')"></i><span>${s.name}</span><kbd>${i + 1}</kbd></button>`).join('');
-}
-async function previewSmall() {
-  if (!S.ready) return '';
-  const b = await finalImage(), url = URL.createObjectURL(b), img = await loadImage(url);
-  const k = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
-  c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
-  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-  return c.toDataURL('image/jpeg', .78);
-}
-function wireShortlist() {
-  const V = window.Velura;
-  $('slBtn').onclick = () => { if (!S.stone) return; const on = V.shortlist.toggle(S.stone.slug); toast(on ? `${S.stone.name} added to your shortlist${V.shortlist.get().length >= 2 ? ' — compare them at the top' : ''}` : 'Removed from shortlist'); updateEnquire(); };
-  $('quoteBtn').onclick = async () => {
-    if (!S.stone) return;
-    let preview = ''; try { preview = await previewSmall(); } catch (e) { }
-    V.quote({ stone: S.stone, size: S.size.label, finish: S.finish.label, pattern: PATTERNS[S.pattern].label, preview, source: 'visualizer' });
-  };
-  $('cmp').onclick = e => { const b = e.target.closest('button[data-slug]'); if (b) selectStone(S.catalog.find(s => s.slug === b.dataset.slug), { scroll: true }); };
-  addEventListener('keydown', e => {
-    if (e.target.matches('input,textarea,select') || !S.ready) return;
-    const n = +e.key; if (n >= 1 && n <= 4) { const sl = V.shortlist.get()[n - 1]; if (sl) selectStone(S.catalog.find(s => s.slug === sl), { scroll: true }); }
-  });
-  V.shortlist.on(() => { lastCmp = ''; updateEnquire(); });
-}
-/* sample rooms: add photos to /rooms and list them in rooms/rooms.json → [{"name":"Living room","file":"living.jpg"}] */
-async function loadSamples() {
-  try {
-    const r = await fetch('rooms/rooms.json'); if (!r.ok) return;
-    const list = await r.json(); if (!Array.isArray(list) || !list.length) return;
-    $('sampleRow').innerHTML = list.map(x => `<button class="room" data-f="rooms/${x.file}" style="background-image:url('rooms/${x.thumb || x.file}')"><span>${x.name}</span></button>`).join('');
-    $('sampleRow').onclick = e => { const b = e.target.closest('.room'); if (b) { S.reflDone = false; loadPhoto(b.dataset.f); } };
-    $('samples').classList.remove('hidden');
-  } catch (e) { }
-}
 function boot() {
   if (!initGL()) {
     document.querySelector('#drop .big').textContent = 'This browser can’t run Velura';
@@ -1338,7 +1236,6 @@ function boot() {
   chips($('sizes'), SIZES, it => it === S.size, it => S.size = it);
   chips($('patterns'), PATTERNS, it => it.id === S.pattern, it => S.pattern = it.id);
   chips($('finishes'), FINISHES, it => it === S.finish, it => S.finish = it);
-  chips($('joints'), [{ label: 'Seamless', v: true }, { label: 'Visible', v: false }], it => it.v === S.seam, it => S.seam = it.v);
   syncLabels();
 
   $('file').addEventListener('change', e => { const f = e.target.files[0]; if (f) loadPhoto(f); e.target.value = ''; });
@@ -1349,7 +1246,6 @@ function boot() {
 
   $('btnNew').onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => i.files[0] && (S.reflDone = false, loadPhoto(i.files[0])); i.click(); };
   $('btnSave').onclick = save; $('btnShare').onclick = share; $('render').onclick = doRender;
-  loadSamples(); wireShortlist();
   $('tools').onclick = e => { const b = e.target.closest('.tool'); if (b) setTool(b.dataset.tool); };
   $('brushBar').onclick = e => { const b = e.target.closest('[data-brush]'); if (!b) return; S.brush = b.dataset.brush; document.querySelectorAll('[data-brush]').forEach(c => c.classList.toggle('on', c === b)); };
   $('cols').onclick = e => {

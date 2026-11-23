@@ -1,651 +1,1176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Velura — See the stone before it’s laid</title>
-<meta name="description" content="Velura lays real natural stone slabs into a photo of any room — true scale, true veining, in seconds. For stone retailers, architects and homeowners.">
-<meta property="og:title" content="Velura — See the stone before it’s laid">
-<meta property="og:description" content="Real natural stone, on your own floor, before you buy.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kushal Raj Poddar — AI & Agentic Systems Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --black:#050505;--black-2:#0b0b0a;--black-3:#141312;--line:rgba(245,239,230,.10);--line-2:rgba(245,239,230,.18);
-  --ivory:#f5efe6;--dim:rgba(245,239,230,.45);--dim-2:rgba(245,239,230,.68);
-  --gold:#c9a96e;--gold-dim:rgba(201,169,110,.45);--gold-glow:rgba(201,169,110,.12);
-  --serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
-  --ease:cubic-bezier(.16,1,.3,1);--pad:clamp(20px,5vw,72px);
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --border: #30363d;
+  --cyan: #00d4ff;
+  --green: #39d353;
+  --purple: #a371f7;
+  --orange: #f78166;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
-html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--ivory);font-family:var(--sans);font-weight:300;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
-img{display:block;max-width:100%}
-.eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
-.serif{font-family:var(--serif);font-weight:400}
-.hidden{display:none!important}
-.wrap{padding:0 var(--pad);max-width:1440px;margin:0 auto}
-.btn{height:48px;padding:0 26px;border:1px solid var(--line-2);border-radius:999px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;transition:border-color .4s,color .4s,background .4s,transform .4s var(--ease);white-space:nowrap}
-.btn:hover{border-color:var(--gold);color:var(--gold)}
-.btn.solid{background:var(--gold);border-color:var(--gold);color:#140f07;font-weight:500}
-.btn.solid:hover{background:#d8bc88;color:#140f07;transform:translateY(-1px)}
-.btn svg{width:14px;height:14px}
-.reveal{opacity:0;transform:translateY(28px);transition:opacity 1.1s var(--ease),transform 1.2s var(--ease)}
-.reveal.in{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
 
-/* ── nav ─────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);padding-top:env(safe-area-inset-top);transition:background .5s,border-color .5s,height .5s;border-bottom:1px solid transparent}
-nav.solid{background:rgba(5,5,5,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:var(--line);height:62px}
-.logo{font-family:var(--serif);letter-spacing:.44em;font-size:18px}
-.links{display:flex;gap:34px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim-2)}
-.links a{position:relative;padding:6px 0;transition:color .3s}
-.links a:after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--gold);transition:right .5s var(--ease)}
-.links a:hover{color:var(--ivory)}.links a:hover:after{right:0}
-.navcta{display:flex;gap:8px}
-.navcta .btn{height:38px;padding:0 18px;font-size:10px}
-#menuBtn{display:none;width:38px;height:38px;border:1px solid var(--line-2);border-radius:50%;place-items:center}
-#menuBtn i,#menuBtn i:before,#menuBtn i:after{display:block;width:14px;height:1px;background:var(--ivory);position:relative;transition:transform .4s var(--ease)}
-#menuBtn i:before,#menuBtn i:after{content:'';position:absolute;left:0}
-#menuBtn i:before{top:-5px}#menuBtn i:after{top:5px}
-body.menu #menuBtn i{background:transparent}body.menu #menuBtn i:before{transform:translateY(5px) rotate(45deg)}body.menu #menuBtn i:after{transform:translateY(-5px) rotate(-45deg)}
-#sheet{position:fixed;inset:0;z-index:45;background:rgba(5,5,5,.97);display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad);gap:22px;opacity:0;pointer-events:none;transition:opacity .5s}
-body.menu #sheet{opacity:1;pointer-events:auto}
-#sheet a{font-family:var(--serif);font-size:34px}
-#sheet .btn{align-self:flex-start;margin-top:18px}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ── hero ────────────────────────────────────── */
-#hero{position:relative;height:100svh;min-height:620px;overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none}
-#hero.drag{cursor:grabbing}
-.slab-l{position:absolute;inset:-3%;background-size:cover;background-position:center;opacity:0;transform:scale(1.1);transition:opacity 1.6s var(--ease),transform 9s cubic-bezier(.2,.6,.2,1);will-change:opacity,transform}
-.slab-l.on{opacity:1;transform:scale(1.0)}
-#sheen{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;background:radial-gradient(600px circle at var(--mx,70%) var(--my,30%),rgba(255,250,240,.55),rgba(255,250,240,0) 60%);transition:opacity .6s}
-#hero:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(5,5,5,.88) 0%,rgba(5,5,5,.55) 38%,rgba(5,5,5,.05) 70%),linear-gradient(0deg,rgba(5,5,5,.9) 0%,rgba(5,5,5,0) 34%)}
-.hcopy{position:absolute;z-index:2;left:var(--pad);top:50%;transform:translateY(-54%);max-width:640px}
-.hcopy h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,7.2vw,104px);line-height:.98;letter-spacing:-.01em;margin:22px 0 26px}
-.hcopy h1 em{font-style:italic;color:var(--gold)}
-.hcopy p{font-size:clamp(14px,1.25vw,17px);line-height:1.7;color:var(--dim-2);max-width:470px;margin-bottom:36px}
-.hcopy .ctas{display:flex;gap:10px;flex-wrap:wrap}
-.hfoot{position:absolute;z-index:2;left:var(--pad);right:var(--pad);bottom:34px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
-.hstone{min-width:0}
-.hstone .idx{font-size:10px;letter-spacing:.3em;color:var(--dim)}
-.hstone .idx b{color:var(--ivory);font-weight:400}
-.hstone .nm{font-family:var(--serif);font-size:26px;margin-top:8px;transition:opacity .5s,transform .7s var(--ease)}
-.hstone .ps{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-top:6px;transition:opacity .5s .05s,transform .7s .05s var(--ease)}
-.hstone.swap .nm,.hstone.swap .ps{opacity:0;transform:translateY(10px)}
-.rail{display:flex;gap:8px}
-.rail button{width:46px;height:62px;border-radius:2px;background-size:cover;background-position:center;opacity:.45;position:relative;overflow:hidden;transition:opacity .4s,transform .5s var(--ease)}
-.rail button:hover{opacity:.85;transform:translateY(-3px)}
-.rail button.on{opacity:1}
-.rail button i{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--gold)}
-.rail button.on i{animation:prog var(--dur,6s) linear forwards}
-@keyframes prog{to{width:100%}}
-.hint{position:absolute;z-index:2;left:50%;bottom:34px;transform:translateX(-50%);font-size:9px;letter-spacing:.32em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:10px}
-.hint i{width:28px;height:1px;background:var(--dim);position:relative;overflow:hidden}
-.hint i:after{content:'';position:absolute;inset:0;background:var(--ivory);animation:sweep 2.4s var(--ease) infinite}
-@keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+html { scroll-behavior: smooth; }
 
-/* ── marquee ─────────────────────────────────── */
-#marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 0;overflow:hidden;position:relative}
-#marquee:before,#marquee:after{content:'';position:absolute;top:0;bottom:0;width:12vw;z-index:2;pointer-events:none}
-#marquee:before{left:0;background:linear-gradient(90deg,var(--black),transparent)}
-#marquee:after{right:0;background:linear-gradient(-90deg,var(--black),transparent)}
-.mtrack{display:flex;gap:14px;width:max-content;animation:mq 90s linear infinite}
-#marquee:hover .mtrack{animation-play-state:paused}
-@keyframes mq{to{transform:translateX(-50%)}}
-.mtrack a{display:flex;align-items:center;gap:12px;padding-right:18px;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--dim-2);transition:color .3s}
-.mtrack a:hover{color:var(--gold)}
-.mtrack a span{width:52px;height:52px;border-radius:50%;background-size:cover;background-position:center;flex:none;transition:transform .5s var(--ease)}
-.mtrack a:hover span{transform:scale(1.12)}
-
-/* ── sections ────────────────────────────────── */
-section{padding:clamp(90px,12vw,170px) 0}
-.shead{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:clamp(44px,6vw,80px)}
-.shead h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,4.6vw,64px);line-height:1.04;margin-top:18px}
-.shead h2 em{font-style:italic;color:var(--gold)}
-.shead p{color:var(--dim-2);font-size:15px;line-height:1.75;max-width:460px;justify-self:end}
-
-/* how it works */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.step{border-top:1px solid var(--line-2);padding-top:26px}
-.step .n{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--gold)}
-.step h3{font-family:var(--serif);font-weight:400;font-size:28px;margin:12px 0 10px}
-.step p{color:var(--dim);font-size:14px;line-height:1.7;max-width:340px}
-.vis{height:270px;border-radius:3px;background:var(--black-3);margin-bottom:30px;position:relative;overflow:hidden;border:1px solid var(--line)}
-/* step 1 — a photo drops in */
-.v1 .frame{position:absolute;left:50%;top:50%;width:62%;height:68%;transform:translate(-50%,-50%);border:1px dashed var(--gold-dim);border-radius:3px;display:grid;place-items:center}
-.v1 .photo{position:absolute;inset:10px;border-radius:2px;background:linear-gradient(180deg,#2b2925 0%,#2b2925 55%,#4a3a2c 55%,#3a2d23 100%);transform:translateY(-140%) rotate(-6deg);transition:transform 1.1s var(--ease) .25s}
-.v1 .photo:before{content:'';position:absolute;left:18%;top:20%;width:22%;height:35%;background:#3a3631;border-radius:1px}
-.v1 .photo:after{content:'';position:absolute;right:16%;top:34%;width:30%;height:22%;background:#1d1c1a;border-radius:2px}
-.in .v1 .photo{transform:none}
-.v1 .up{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
-/* step 2 — slabs fan out */
-.v2 .card{position:absolute;left:50%;top:50%;width:36%;aspect-ratio:3/4;border-radius:2px;background-size:cover;background-position:center;box-shadow:0 20px 40px rgba(0,0,0,.5);transform:translate(-50%,-50%);transition:transform 1.2s var(--ease)}
-.in .v2 .card:nth-child(1){transform:translate(-112%,-48%) rotate(-12deg)}
-.in .v2 .card:nth-child(2){transform:translate(-50%,-54%) rotate(0deg)}
-.in .v2 .card:nth-child(3){transform:translate(12%,-48%) rotate(12deg)}
-.v2 .card:nth-child(2){z-index:2;outline:1px solid var(--gold);outline-offset:3px}
-/* step 3 — a floor is laid in perspective, tile by tile */
-.v3{perspective:520px}
-.v3 .floor{position:absolute;left:-30%;right:-30%;top:34%;height:130%;transform:rotateX(64deg);transform-origin:50% 0;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:1px;background:#0c0c0b}
-.v3 .floor i{background-size:600% 400%;opacity:0;transform:translateY(-20px) scale(.96);transition:opacity .7s,transform .9s var(--ease)}
-.in .v3 .floor i{opacity:1;transform:none}
-.v3 .wall{position:absolute;left:0;right:0;top:0;height:34%;background:linear-gradient(180deg,#24221f,#1a1917)}
-.v3 .glow{position:absolute;inset:0;background:radial-gradient(circle at 70% 40%,rgba(255,240,215,.18),transparent 55%);pointer-events:none}
-
-/* why velura */
-#why{background:var(--black-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.vs{display:grid;grid-template-columns:1.1fr 1fr 1fr;border-top:1px solid var(--line-2)}
-.vs>div{padding:22px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.6}
-.vs .k{font-family:var(--serif);font-size:20px;padding-right:20px}
-.vs .them{color:var(--dim);padding-right:24px}
-.vs .us{color:var(--ivory)}
-.vs .us:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 12px 2px 0;vertical-align:middle}
-.vs .h{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);padding:16px 0}
-.vs .h.us{color:var(--gold)}
-.vs .h.us:before{display:none}
-
-/* solutions */
-.sols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.sol{position:relative;min-height:520px;border-radius:3px;overflow:hidden;padding:30px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate;border:1px solid var(--line)}
-.sol .bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transform:scale(1.04);transition:transform 1.6s var(--ease);filter:saturate(.9)}
-.sol:hover .bg{transform:scale(1.12)}
-.sol:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(5,5,5,.25),rgba(5,5,5,.55) 40%,rgba(5,5,5,.95))}
-.sol .who{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
-.sol h3{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.1;margin:14px 0 18px}
-.sol ul{list-style:none;display:grid;gap:10px;font-size:13.5px;color:var(--dim-2);line-height:1.5}
-.sol li{display:flex;gap:10px}
-.sol li:before{content:'—';color:var(--gold)}
-.sol .tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;border:1px solid var(--gold-dim);color:var(--gold);padding:2px 7px;border-radius:999px;margin-left:6px;white-space:nowrap}
-.sol a.more{margin-top:24px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;display:inline-flex;gap:10px;align-items:center;color:var(--ivory)}
-.sol a.more i{width:26px;height:1px;background:var(--gold);transition:width .5s var(--ease)}
-.sol a.more:hover i{width:46px}
-
-/* surfaces */
-.surf{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
-.surf>div{background:var(--black);padding:34px 30px 30px;position:relative;overflow:hidden}
-.surf .icon{height:110px;margin-bottom:26px;position:relative}
-.surf h3{font-family:var(--serif);font-weight:400;font-size:26px}
-.surf p{color:var(--dim);font-size:13.5px;line-height:1.6;margin-top:8px}
-.surf .st{position:absolute;top:28px;right:28px;font-size:9px;letter-spacing:.24em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line-2);color:var(--dim)}
-.surf .st.live{border-color:var(--gold);color:var(--gold)}
-.surf .st.live:before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:6px;vertical-align:1px;animation:pulse 2s infinite}
-@keyframes pulse{50%{opacity:.25}}
-.ic-floor,.ic-wall,.ic-top{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:2px}
-.ic-floor{clip-path:polygon(22% 0,78% 0,100% 100%,0 100%)}
-.ic-wall{left:28%;right:28%;}
-.ic-top{top:30%;bottom:30%;clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
-.ic-top:after{content:'';position:absolute;left:0;right:0;top:100%;height:30%;background:#1a1918}
-
-/* collection */
-#collection .shead{margin-bottom:30px}
-.cfilter{display:flex;gap:26px;margin-bottom:34px;overflow-x:auto;scrollbar-width:none}
-.cfilter::-webkit-scrollbar{display:none}
-.cfilter button{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--dim);padding-bottom:8px;border-bottom:1px solid transparent;transition:color .3s,border-color .3s;white-space:nowrap}
-.cfilter button:hover{color:var(--ivory)}
-.cfilter button.on{color:var(--ivory);border-color:var(--gold)}
-.cfilter sup{font-family:var(--sans);font-style:normal;font-size:9px;color:var(--dim);margin-left:3px}
-#cards{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 var(--pad) 8px;margin:0 calc(-1 * var(--pad));cursor:grab;scroll-padding:0 var(--pad)}
-#cards::-webkit-scrollbar{display:none}
-#cards.drag{cursor:grabbing;scroll-snap-type:none}
-.pc{flex:none;width:clamp(240px,22vw,320px);aspect-ratio:3/4.6;border-radius:2px;position:relative;overflow:hidden;scroll-snap-align:start;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;padding:26px 24px;color:var(--ivory)}
-.pc .bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transition:transform 1.4s var(--ease)}
-.pc .bg.hi{opacity:0;transition:opacity .8s,transform 1.4s var(--ease)}
-.pc .bg.hi.ready{opacity:1}
-.pc:hover .bg{transform:scale(1.07)}
-.pc:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(5,5,5,.3),rgba(5,5,5,0) 22%,rgba(5,5,5,.05) 45%,rgba(5,5,5,.85))}
-.pc .mk{position:absolute;top:20px;left:22px;font-family:var(--serif);letter-spacing:.42em;font-size:11px}
-.pc .mt{position:absolute;top:19px;right:22px;font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;text-align:right;line-height:1.6;opacity:.85}
-.pc h4{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.02}
-.pc .r{width:22px;height:1px;background:var(--ivory);margin:14px 0 10px;opacity:.85}
-.pc .p{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:500}
-.pc .l{font-size:12px;opacity:.78;margin-top:6px;line-height:1.5}
-.pc .try{position:absolute;left:24px;right:24px;bottom:24px;height:40px;border-radius:999px;background:var(--ivory);color:#0b0a09;font-size:10px;letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .5s var(--ease)}
-.pc:hover .try{opacity:1;transform:none}
-.pc:hover .txt{transform:translateY(-52px)}
-.pc .txt{transition:transform .6s var(--ease)}
-.cnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
-.cnav .prog{flex:1;height:1px;background:var(--line-2);margin-right:24px;position:relative}
-.cnav .prog i{position:absolute;left:0;top:0;height:1px;background:var(--gold);width:10%;transition:left .2s,width .2s}
-.cnav .arr{display:flex;gap:8px}
-.arr button{width:44px;height:44px;border:1px solid var(--line-2);border-radius:50%;display:grid;place-items:center;transition:border-color .3s,color .3s}
-.arr button:hover{border-color:var(--gold);color:var(--gold)}
-.arr svg{width:14px;height:14px}
-
-/* faq */
-.faq{max-width:880px}
-.qa{border-top:1px solid var(--line-2)}
-.qa:last-child{border-bottom:1px solid var(--line-2)}
-.qa button{width:100%;text-align:left;display:flex;justify-content:space-between;gap:24px;padding:26px 0;font-family:var(--serif);font-size:clamp(19px,2vw,24px)}
-.qa button i{flex:none;width:14px;height:14px;position:relative;margin-top:8px}
-.qa button i:before,.qa button i:after{content:'';position:absolute;left:0;top:50%;width:14px;height:1px;background:var(--gold);transition:transform .5s var(--ease)}
-.qa button i:after{transform:rotate(90deg)}
-.qa.open button i:after{transform:rotate(0)}
-.qa .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s var(--ease)}
-.qa.open .a{grid-template-rows:1fr}
-.qa .a>div{overflow:hidden;color:var(--dim-2);font-size:15px;line-height:1.75;max-width:700px}
-.qa .a p{padding-bottom:26px}
-.faqgrid{display:grid;grid-template-columns:1fr 2fr;gap:60px}
-
-/* cta band */
-#cta{position:relative;overflow:hidden;padding:clamp(110px,14vw,200px) 0;text-align:center;isolation:isolate;border-top:1px solid var(--line)}
-#cta .bg{position:absolute;inset:-5%;z-index:-2;background-size:cover;background-position:center;transform:translateY(var(--py,0))}
-#cta:after{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at center,rgba(5,5,5,.55),rgba(5,5,5,.92) 75%)}
-#cta h2{font-family:var(--serif);font-weight:400;font-size:clamp(36px,5.4vw,78px);line-height:1.04;max-width:980px;margin:20px auto 34px}
-#cta h2 em{font-style:italic;color:var(--gold)}
-#cta .ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-
-footer{padding:70px 0 40px;border-top:1px solid var(--line)}
-.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
-.fgrid h5{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);font-weight:400;margin-bottom:18px}
-.fgrid a,.fgrid span{display:block;font-size:14px;color:var(--dim-2);margin-bottom:10px;transition:color .3s}
-.fgrid a:hover{color:var(--gold)}
-.fbig{font-family:var(--serif);font-size:clamp(60px,14vw,220px);letter-spacing:.2em;line-height:1;margin-top:70px;color:transparent;-webkit-text-stroke:1px rgba(245,239,230,.12);user-select:none;white-space:nowrap;overflow:hidden}
-.fbase{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);letter-spacing:.06em;margin-top:28px}
-
-/* ── responsive ─────────────────────────────── */
-@media (max-width:980px){
-  .links,.navcta .btn:not(.solid){display:none}
-  #menuBtn{display:grid}
-  .shead,.faqgrid{grid-template-columns:1fr}
-  .shead p{justify-self:start}
-  .steps,.sols,.surf{grid-template-columns:1fr}
-  .sol{min-height:420px}
-  .vs{grid-template-columns:1fr 1fr}
-  .vs .k{grid-column:1/-1;padding:22px 0 0;border-bottom:none}
-  .vs .h.k{display:none}
-  .fgrid{grid-template-columns:1fr 1fr}
-  .fgrid>div:first-child{grid-column:1/-1}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  cursor: none;
 }
-@media (max-width:640px){
-  .navcta .btn.solid{height:34px;padding:0 14px}
-  #hero:after{background:linear-gradient(0deg,rgba(5,5,5,.95) 0%,rgba(5,5,5,.6) 45%,rgba(5,5,5,.25) 100%)}
-  .hcopy{top:auto;bottom:150px;transform:none;right:var(--pad)}
-  .hcopy h1{margin:16px 0 18px}
-  .hcopy p{margin-bottom:26px}
-  .hfoot{bottom:24px}
-  .hstone .nm{font-size:20px}
-  .rail button{width:30px;height:42px}
-  .rail button:nth-child(n+6){display:none}
-  .hint{display:none}
-  .pc .try{opacity:1;transform:none}
-  .pc .txt{transform:translateY(-52px)}
-  .fbase{flex-direction:column;gap:8px}
+
+/* Custom Cursor */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s;
+  box-shadow: 0 0 10px var(--cyan);
 }
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-  .reveal{opacity:1;transform:none}
+.cursor-ring {
+  width: 32px; height: 32px;
+  border: 1px solid var(--cyan);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.15s ease;
+  opacity: 0.5;
+}
+
+/* Animated grid background */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.2rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(13,17,23,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--cyan);
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--cyan); }
+
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(57,211,83,0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(57,211,83,0); }
+}
+
+/* SECTIONS */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+/* HERO */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8rem 4rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+  top: 10%; left: -100px;
+  pointer-events: none;
+}
+
+.hero-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(163,113,247,0.06) 0%, transparent 70%);
+  bottom: 10%; right: 100px;
+  pointer-events: none;
+}
+
+.hero-content { max-width: 900px; }
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  margin-bottom: 2rem;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -3px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.hero-name span { color: var(--cyan); }
+
+.hero-role {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  max-width: 600px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.hero-role strong { color: var(--text); }
+
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.btn-primary {
+  background: var(--cyan);
+  color: var(--bg);
+  padding: 0.8rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+  font-family: var(--font-mono);
+}
+
+.btn-primary:hover {
+  background: #00b8d9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,212,255,0.3);
+}
+
+.btn-secondary {
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.8rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  font-family: var(--font-mono);
+}
+
+.btn-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--cyan);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* FLOATING CODE BLOCK */
+.hero-code {
+  position: absolute;
+  right: 4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 340px;
+  font-size: 0.75rem;
+  animation: fadeLeft 0.8s 0.5s ease both;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  display: none;
+}
+
+@media (min-width: 1200px) { .hero-code { display: block; } }
+
+.code-header {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+
+.code-line { line-height: 1.8; }
+.c-purple { color: var(--purple); }
+.c-cyan { color: var(--cyan); }
+.c-green { color: var(--green); }
+.c-orange { color: var(--orange); }
+.c-muted { color: var(--muted); }
+
+/* SECTION COMMONS */
+.section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 6rem 4rem;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 60px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 3rem;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translate(30px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+
+/* ABOUT */
+#about { background: var(--bg2); }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.about-text p {
+  color: var(--muted);
+  line-height: 1.9;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.about-text p strong { color: var(--text); }
+
+.about-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.about-card-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: -16px;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-item:last-child::before { display: none; }
+
+.timeline-dot {
+  width: 23px; height: 23px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 2px solid var(--cyan);
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-dot-inner {
+  width: 7px; height: 7px;
+  background: var(--cyan);
+  border-radius: 50%;
+}
+
+.timeline-content strong {
+  font-size: 0.85rem;
+  display: block;
+}
+
+.timeline-content span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* SKILLS */
+#skills { background: var(--bg); }
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.skill-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.skill-card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-3px);
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+
+.skill-icon {
+  width: 36px; height: 36px;
+  background: rgba(0,212,255,0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.skill-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+
+.tag:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* PROJECTS */
+#projects { background: var(--bg2); }
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.project-card:hover {
+  border-color: rgba(0,212,255,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.project-card:hover::before { opacity: 1; }
+
+.project-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.status-done { color: var(--green); }
+.status-wip { color: var(--orange); }
+
+.status-indicator {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.project-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.project-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.project-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.stack-tag {
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.15);
+  color: var(--cyan);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.project-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.project-link:hover { color: var(--cyan); }
+
+/* CERTIFICATIONS */
+#certifications { background: var(--bg); }
+
+.certs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.cert-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.2s;
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.cert-card:hover {
+  border-color: var(--purple);
+  transform: translateY(-3px);
+}
+
+.cert-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.cert-iit { background: rgba(163,113,247,0.1); }
+.cert-ms { background: rgba(0,212,255,0.1); }
+.cert-oracle { background: rgba(247,129,102,0.1); }
+
+.cert-body { flex: 1; }
+
+.cert-name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.cert-issuer {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+}
+
+.badge-active {
+  background: rgba(57,211,83,0.1);
+  color: var(--green);
+  border: 1px solid rgba(57,211,83,0.2);
+}
+
+.badge-upcoming {
+  background: rgba(0,212,255,0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(0,212,255,0.2);
+}
+
+.cert-score {
+  font-size: 0.75rem;
+  color: var(--purple);
+  margin-top: 0.4rem;
+}
+
+/* CONTACT */
+#contact {
+  background: var(--bg2);
+  text-align: center;
+}
+
+#contact .section-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#contact .section-label { justify-content: center; }
+#contact .section-label::after { display: none; }
+
+.contact-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 500px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.contact-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 4rem;
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.contact-link:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.contact-email {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.contact-email a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+/* FOOTER */
+footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  position: relative;
+  z-index: 1;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  .hero-content { max-width: 100%; }
+  #hero { padding: 7rem 1.5rem 3rem; }
+  .section-inner { padding: 4rem 1.5rem; }
+  .about-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 2rem; flex-wrap: wrap; }
+  footer { flex-direction: column; gap: 0.5rem; text-align: center; }
 }
 </style>
-<script src="velura.js"></script>
 </head>
 <body>
 
-<nav id="nav">
-  <a class="logo" href="#top">VELURA</a>
-  <div class="links">
-    <a href="photo.html">Visualizer</a>
-    <a href="#collection">Collection</a>
-    <a href="#how">How it works</a>
-    <a href="#solutions">For business</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <div class="navcta">
-    <a class="btn demo-link hidden" href="#">Book a demo</a>
-    <a class="btn solid" href="photo.html">Try it free</a>
-    <button id="menuBtn" aria-label="Menu"><i></i></button>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KRP.</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    Open to opportunities
   </div>
 </nav>
-<div id="sheet">
-  <a href="photo.html">Visualizer</a>
-  <a href="#collection">Collection</a>
-  <a href="#how">How it works</a>
-  <a href="#solutions">For business</a>
-  <a href="#faq">FAQ</a>
-  <a class="btn demo-link hidden" href="#">Book a demo</a>
-</div>
 
 <!-- HERO -->
-<header id="hero">
-  <div id="slabs"></div>
-  <div id="sheen"></div>
-  <div class="hcopy" id="top">
-    <div class="eyebrow">Natural stone · Material intelligence</div>
-    <h1>See the stone<br><em>before it’s laid.</em></h1>
-    <p>Velura lays real slabs from our collection into a photo of your room — at true scale, with true veining, in seconds. No guesswork, no invented marble.</p>
-    <div class="ctas">
-      <a class="btn solid" href="photo.html"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 5h2.5L6 3h4l1.5 2H14v8H2z"/><circle cx="8" cy="8.8" r="2.4"/></svg>Try it on your room</a>
-      <a class="btn" href="#collection">Explore the collection</a>
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-content">
+    <div class="hero-tag">
+      <span>⚡</span> AI & Agentic Systems Developer
     </div>
-  </div>
-  <div class="hfoot">
-    <div class="hstone" id="hstone"><div class="idx"><b id="hIdx">01</b> / <span id="hTot">09</span></div><div class="nm" id="hName">&nbsp;</div><div class="ps" id="hPersona">&nbsp;</div></div>
-    <div class="rail" id="rail"></div>
-  </div>
-  <div class="hint"><i></i>Drag to change the stone</div>
-</header>
-
-<!-- MARQUEE -->
-<div id="marquee"><div class="mtrack" id="mtrack"></div></div>
-
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="wrap">
-    <div class="shead">
-      <div class="reveal"><div class="eyebrow">How it works</div><h2>Three steps from<br>showroom to <em>your floor.</em></h2></div>
-      <p class="reveal d2">Velura reads your room the way a stone fitter would — where the floor is, how far it runs, where the light falls — then lays the slab you chose, exactly as it would be installed.</p>
+    <h1 class="hero-name">Kushal<br><span>Raj Poddar</span></h1>
+    <p class="hero-role">
+      Building <strong>intelligent agents</strong> that think, plan and act autonomously.<br>
+      Specializing in <strong>LangGraph · RAG Pipelines · Multi-Agent LLMs</strong> — backed by IIT Roorkee, Microsoft Azure & Oracle OCI certifications.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">View My Projects →</a>
+      <a href="#contact" class="btn-secondary">Let's Connect</a>
     </div>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="vis v1"><div class="frame"><div class="photo"></div></div><div class="up">Your room photo</div></div>
-        <div class="n">01</div><h3>Upload your room</h3>
-        <p>Take a photo from standing height. Velura finds the floor automatically, on your device. Refine the edges with a brush if you like.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">AI Projects</div>
       </div>
-      <div class="step reveal d2">
-        <div class="vis v2" id="v2"></div>
-        <div class="n">02</div><h3>Choose your stone</h3>
-        <p>160 natural stones — marble, onyx, travertine, quartzite. Pick the format, the pattern and the finish: polished, honed or leathered.</p>
+      <div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Certifications</div>
       </div>
-      <div class="step reveal d4">
-        <div class="vis v3"><div class="wall"></div><div class="floor" id="v3"></div><div class="glow"></div></div>
-        <div class="n">03</div><h3>See it laid</h3>
-        <p>The real slab, tile by tile, in true perspective with your room’s own light and reflections. Compare before and after, save, share.</p>
+      <div>
+        <div class="stat-num">7.9</div>
+        <div class="stat-label">IIT CGPA</div>
+      </div>
+      <div>
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Curiosity</div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- WHY -->
-<section id="why">
-  <div class="wrap">
-    <div class="shead">
-      <div class="reveal"><div class="eyebrow">Why Velura</div><h2>Your stone.<br><em>Not an AI’s idea of it.</em></h2></div>
-      <p class="reveal d2">Natural stone is one-of-a-kind. A visualizer that invents its own veining shows the customer something they can never buy. Velura shows the slab they can.</p>
+  <div class="hero-code">
+    <div class="code-header">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
     </div>
-    <div class="vs reveal">
-      <div class="h k"></div><div class="h them">Generic AI visualizers</div><div class="h us">Velura</div>
-      <div class="k">Veining</div><div class="them">Generated or repeated texture</div><div class="us">Real photography of each stone in the collection</div>
-      <div class="k">Scale</div><div class="them">Guessed</div><div class="us">True tile and slab sizes, measured in metres on the floor plane</div>
-      <div class="k">Laying</div><div class="them">One flat swap</div><div class="us">Straight, staggered or book-matched; seamless or with joints</div>
-      <div class="k">Finish</div><div class="them">One look</div><div class="us">Polished, honed or leathered — with real room reflections</div>
-      <div class="k">Privacy</div><div class="them">Photo uploaded to a server</div><div class="us">Floor detection runs on your device</div>
-      <div class="k">Showroom</div><div class="them">A screen</div><div class="us">Mixed-reality on Meta Quest — walk on the floor before it exists <span style="color:var(--dim)">(pilot)</span></div>
-    </div>
+    <div class="code-line"><span class="c-purple">from</span> <span class="c-cyan">langgraph</span> <span class="c-purple">import</span> StateGraph</div>
+    <div class="code-line"><span class="c-purple">from</span> <span class="c-cyan">agents</span> <span class="c-purple">import</span> KushalAgent</div>
+    <div class="code-line">&nbsp;</div>
+    <div class="code-line"><span class="c-muted"># Initialize agentic workflow</span></div>
+    <div class="code-line"><span class="c-green">graph</span> = StateGraph(AgentState)</div>
+    <div class="code-line">&nbsp;</div>
+    <div class="code-line">graph.<span class="c-cyan">add_node</span>(</div>
+    <div class="code-line">&nbsp;&nbsp;<span class="c-orange">"planner"</span>, plan_task</div>
+    <div class="code-line">)</div>
+    <div class="code-line">graph.<span class="c-cyan">add_node</span>(</div>
+    <div class="code-line">&nbsp;&nbsp;<span class="c-orange">"executor"</span>, run_task</div>
+    <div class="code-line">)</div>
+    <div class="code-line">&nbsp;</div>
+    <div class="code-line"><span class="c-muted"># Ship it 🚀</span></div>
+    <div class="code-line">app = graph.<span class="c-cyan">compile</span>()</div>
   </div>
 </section>
 
-<!-- SOLUTIONS -->
-<section id="solutions">
-  <div class="wrap">
-    <div class="shead">
-      <div class="reveal"><div class="eyebrow">For business</div><h2>Built for the people<br>who <em>sell stone.</em></h2></div>
-      <p class="reveal d2">Natural stone is a high-consideration purchase. Velura turns “I can’t imagine it” into “that one” — in the showroom, on your website and in your client meetings.</p>
-    </div>
-    <div class="sols">
-      <div class="sol reveal" data-stone="emperador-grey"><div class="bg"></div>
-        <div class="who">Stone retailers & showrooms</div><h3>Close the sale on the customer’s own floor.</h3>
-        <ul><li>Your entire catalogue, visualised in any customer’s room</li><li>A tablet on the showroom floor — or a QR code at every slab</li><li>Enquiries arrive on WhatsApp with the stone already chosen</li><li>On your own website<span class="tag">Early access</span></li></ul>
-        <a class="more demo-link-alt" href="photo.html">See it in action <i></i></a>
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label">01. About Me</div>
+    <h2 class="section-title">The Story So Far</h2>
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <p>I'm an <strong>AI & Agentic Systems Developer</strong> from Bengaluru, passionate about building systems where AI doesn't just respond — it reasons, plans and executes.</p>
+        <p>After years of developing strong <strong>analytical and problem-solving skills</strong>, I made a decisive pivot into AI development in late 2025 — enrolling in IIT Roorkee's Agentic Systems program and immediately starting to build real projects.</p>
+        <p>My background in <strong>BCA Mobile Application & Technology</strong> from Jain University gives me a unique edge — I build AI that's not just powerful, but actually reaches users through polished interfaces.</p>
+        <p>I'm currently seeking roles as an <strong>AI Engineer, LLM Developer or Agentic Systems Developer</strong> in Bengaluru or Remote — target 15–25 LPA.</p>
       </div>
-      <div class="sol reveal d2" data-stone="statuario"><div class="bg"></div>
-        <div class="who">Architects & interior designers</div><h3>Present three stones in the time it takes to describe one.</h3>
-        <ul><li>Show options on the client’s actual space, not a mood board</li><li>Book-matching, formats and finishes — the way you specify them</li><li>Export clean, branded renders for presentations</li></ul>
-        <a class="more" href="photo.html">Start a presentation <i></i></a>
+      <div class="about-card">
+        <div class="about-card-title">// Timeline</div>
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <strong>AI & Agentic Systems Developer</strong>
+            <span>Dec 2025 – Present · Self-Employed</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <strong>IIT Roorkee — Agentic Systems & Design</strong>
+            <span>2024 – Aug 2026 · CGPA 7.9</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <strong>Oracle OCI Certified</strong>
+            <span>December 2025</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <strong>Microsoft Azure AI-900 Certified</strong>
+            <span>January 2026</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <strong>BCA — Mobile Application & Technology</strong>
+            <span>Jain University · 2019 – 2022</span>
+          </div>
+        </div>
       </div>
-      <div class="sol reveal d4" data-stone="crema-classico"><div class="bg"></div>
-        <div class="who">Homeowners</div><h3>Choose with confidence. It’s going to be there for decades.</h3>
-        <ul><li>Try any stone on your floor before you visit a single yard</li><li>Compare before and after, side by side</li><li>Share with family on WhatsApp and decide together</li></ul>
-        <a class="more" href="photo.html">Try it on your room <i></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="section-label">02. Skills</div>
+    <h2 class="section-title">Technical Arsenal</h2>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon">🤖</div>
+          <div class="skill-card-title">AI & Agentic Systems</div>
+        </div>
+        <div class="skill-tags">
+          <span class="tag">LangGraph</span>
+          <span class="tag">LangChain</span>
+          <span class="tag">CrewAI</span>
+          <span class="tag">AutoGen</span>
+          <span class="tag">RAG Pipelines</span>
+          <span class="tag">Prompt Engineering</span>
+          <span class="tag">Multi-Agent Systems</span>
+          <span class="tag">OpenAI API</span>
+          <span class="tag">Claude API</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon">☁️</div>
+          <div class="skill-card-title">Cloud Platforms</div>
+        </div>
+        <div class="skill-tags">
+          <span class="tag">Microsoft Azure</span>
+          <span class="tag">Oracle OCI</span>
+          <span class="tag">Cloud Deployment</span>
+          <span class="tag">Render</span>
+          <span class="tag">Serverless</span>
+          <span class="tag">Vercel</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon">⚙️</div>
+          <div class="skill-card-title">Backend & APIs</div>
+        </div>
+        <div class="skill-tags">
+          <span class="tag">Python</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">Express.js</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">REST APIs</span>
+          <span class="tag">Docker</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon">🎨</div>
+          <div class="skill-card-title">Frontend & Mobile</div>
+        </div>
+        <div class="skill-tags">
+          <span class="tag">React</span>
+          <span class="tag">React Native</span>
+          <span class="tag">Vite</span>
+          <span class="tag">Tailwind CSS</span>
+          <span class="tag">Mobile Dev</span>
+          <span class="tag">AR Development</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SURFACES -->
-<section id="surfaces" style="padding-top:0">
-  <div class="wrap">
-    <div class="shead">
-      <div class="reveal"><div class="eyebrow">Surfaces</div><h2>One stone.<br><em>Every surface.</em></h2></div>
-      <p class="reveal d2">Floors are live today. Feature walls and countertops are next — the same real slabs, the same true scale.</p>
-    </div>
-    <div class="surf reveal">
-      <div><span class="st live">Live</span><div class="icon"><div class="ic-floor" data-stone="statuario-wow"></div></div><h3>Floors</h3><p>Living rooms, lobbies, bedrooms and terraces — wall to wall.</p></div>
-      <div><span class="st">Coming soon</span><div class="icon"><div class="ic-wall" data-stone="blue-roma"></div></div><h3>Feature walls</h3><p>Book-matched statement walls, TV units and backsplashes.</p></div>
-      <div><span class="st">Coming soon</span><div class="icon"><div class="ic-top" data-stone="gold-pietra-onyx"></div></div><h3>Countertops</h3><p>Kitchen islands, vanities and bar tops, with edge profiles.</p></div>
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-label">03. Projects</div>
+    <h2 class="section-title">Things I've Built</h2>
+    <div class="projects-grid reveal">
+
+      <div class="project-card">
+        <div class="project-status status-done">
+          <div class="status-indicator"></div> Completed
+        </div>
+        <div class="project-name">Kaarya AI — Automation Goal Execution Agent</div>
+        <p class="project-desc">An autonomous AI agent that converts high-level user goals into executable sub-tasks using LangGraph's stateful graph architecture. Full-stack with real-time tracking and Claude Haiku integration.</p>
+        <div class="project-stack">
+          <span class="stack-tag">LangGraph</span>
+          <span class="stack-tag">FastAPI</span>
+          <span class="stack-tag">React</span>
+          <span class="stack-tag">Node.js</span>
+          <span class="stack-tag">PostgreSQL</span>
+          <span class="stack-tag">Claude API</span>
+        </div>
+        <a href="https://github.com/kushalpoddar199-glitch" class="project-link" target="_blank">↗ View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-status status-wip">
+          <div class="status-indicator"></div> In Progress
+        </div>
+        <div class="project-name">AI Business Automation Agent</div>
+        <p class="project-desc">An intelligent business process automation agent handling repetitive enterprise workflows — scheduling, reporting, data entry and communication via tool-calling architecture.</p>
+        <div class="project-stack">
+          <span class="stack-tag">LangChain</span>
+          <span class="stack-tag">FastAPI</span>
+          <span class="stack-tag">PostgreSQL</span>
+          <span class="stack-tag">OpenAI API</span>
+        </div>
+        <a href="https://github.com/kushalpoddar199-glitch" class="project-link" target="_blank">↗ View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-status status-wip">
+          <div class="status-indicator"></div> In Progress
+        </div>
+        <div class="project-name">AI Multi-Agent Research System</div>
+        <p class="project-desc">A collaborative multi-agent framework where specialized AI agents work in parallel to research, synthesize and summarize complex topics using RAG with vector embeddings.</p>
+        <div class="project-stack">
+          <span class="stack-tag">LangGraph</span>
+          <span class="stack-tag">CrewAI</span>
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Vector DB</span>
+          <span class="stack-tag">RAG</span>
+        </div>
+        <a href="https://github.com/kushalpoddar199-glitch" class="project-link" target="_blank">↗ View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-status status-wip">
+          <div class="status-indicator"></div> In Progress
+        </div>
+        <div class="project-name">AI Mobile Assistance App</div>
+        <p class="project-desc">A cross-platform mobile AI assistant with voice input, contextual memory and on-device agent responses — built for everyday intelligent task management.</p>
+        <div class="project-stack">
+          <span class="stack-tag">React Native</span>
+          <span class="stack-tag">LangChain</span>
+          <span class="stack-tag">FastAPI</span>
+        </div>
+        <a href="https://github.com/kushalpoddar199-glitch" class="project-link" target="_blank">↗ View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-status status-wip">
+          <div class="status-indicator"></div> In Progress
+        </div>
+        <div class="project-name">AR Marble Visualizer App</div>
+        <p class="project-desc">An augmented reality app allowing users to preview marble and stone textures in real-world spaces before purchase — targeting interior design and e-commerce verticals.</p>
+        <div class="project-stack">
+          <span class="stack-tag">React Native</span>
+          <span class="stack-tag">ARKit</span>
+          <span class="stack-tag">ARCore</span>
+          <span class="stack-tag">3D Rendering</span>
+        </div>
+        <a href="https://github.com/kushalpoddar199-glitch" class="project-link" target="_blank">↗ View on GitHub</a>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- COLLECTION -->
-<section id="collection" style="padding-top:0">
-  <div class="wrap">
-    <div class="shead">
-      <div class="reveal"><div class="eyebrow">The collection</div><h2>Every stone has a personality.<br><em>Which one is yours?</em></h2></div>
-      <p class="reveal d2">Drag through the collection. Tap any stone to see it on your floor.</p>
-    </div>
-    <div class="cfilter reveal" id="cfilter"></div>
-    <div id="cards"></div>
-    <div class="cnav"><div class="prog"><i id="cprog"></i></div><div class="arr"><button id="cPrev" aria-label="Previous"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 2 4 7l5 5"/></svg></button><button id="cNext" aria-label="Next"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="m5 2 5 5-5 5"/></svg></button></div></div>
-  </div>
-</section>
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="section-inner">
+    <div class="section-label">04. Certifications</div>
+    <h2 class="section-title">Credentials</h2>
+    <div class="certs-grid reveal">
 
-<!-- FAQ -->
-<section id="faq" style="padding-top:0">
-  <div class="wrap faqgrid">
-    <div class="reveal"><div class="eyebrow">Questions</div><h2 class="serif" style="font-size:clamp(34px,4vw,56px);line-height:1.05;margin-top:18px">Good to<br><em style="color:var(--gold)">know.</em></h2></div>
-    <div class="faq" id="faqList">
-      <div class="qa"><button>How accurate is it?<i></i></button><div class="a"><div><p>Velura uses real photographs of each stone and lays them at true size — a 120 × 120 cm tile is 120 × 120 cm on your floor. Natural stone varies slab to slab, so always see the actual slab before you buy; Velura gets you to the right stone faster.</p></div></div></div>
-      <div class="qa"><button>Do I need to upload a photo?<i></i></button><div class="a"><div><p>Yes — Velura works on a photo of your own room, taken on your phone. Floor detection runs on your device; your photo only leaves it if you choose a photoreal render.</p></div></div></div>
-      <div class="qa"><button>What do I need to use it?<i></i></button><div class="a"><div><p>Any recent phone, tablet or laptop with Chrome, Safari or Edge. No app to install. The first time, it downloads a small floor-detection model (around 30 MB) and keeps it for next time.</p></div></div></div>
-      <div class="qa"><button>I run a stone showroom. Can I use Velura with my own stones?<i></i></button><div class="a"><div><p>Yes. We set up your catalogue, your branding and your enquiry number, for your showroom tablet, a QR code at every slab, and — in early access — your own website. Book a demo and we’ll show it on one of your customer’s rooms.</p></div></div></div>
-      <div class="qa"><button>Can it do walls and countertops?<i></i></button><div class="a"><div><p>Floors are live today. Feature walls and countertops are in development and coming next.</p></div></div></div>
-      <div class="qa"><button>What does it cost?<i></i></button><div class="a"><div><p>For homeowners, Velura is free to try. For retailers and studios, pricing depends on catalogue size and where you use it — talk to us.</p></div></div></div>
-    </div>
-  </div>
-</section>
+      <div class="cert-card">
+        <div class="cert-icon cert-iit">🎓</div>
+        <div class="cert-body">
+          <div class="cert-name">Agentic Systems & Design</div>
+          <div class="cert-issuer">IIT Roorkee · 2024 – August 2026</div>
+          <span class="cert-badge badge-upcoming">⏳ Completing Aug 2026</span>
+          <div class="cert-score">Module 1 CGPA: 7.9</div>
+        </div>
+      </div>
 
-<!-- CTA -->
-<section id="cta">
-  <div class="bg" id="ctaBg"></div>
-  <div class="wrap">
-    <div class="eyebrow reveal">Material intelligence</div>
-    <h2 class="reveal d1">Put every slab in your showroom<br>on your <em>customer’s floor.</em></h2>
-    <div class="ctas reveal d2">
-      <a class="btn solid" href="photo.html">Try it free</a>
-      <a class="btn demo-link hidden" href="#">Book a demo</a>
+      <div class="cert-card">
+        <div class="cert-icon cert-ms">☁️</div>
+        <div class="cert-body">
+          <div class="cert-name">Azure AI Fundamentals — AI-900</div>
+          <div class="cert-issuer">Microsoft · January 2026</div>
+          <span class="cert-badge badge-active">✓ Certified</span>
+        </div>
+      </div>
+
+      <div class="cert-card">
+        <div class="cert-icon cert-oracle">🔶</div>
+        <div class="cert-body">
+          <div class="cert-name">Oracle Cloud Infrastructure</div>
+          <div class="cert-issuer">Oracle · December 2025</div>
+          <span class="cert-badge badge-active">✓ Certified</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">05. Contact</div>
+    <h2 class="section-title">Let's Build Something</h2>
+    <p class="contact-sub">I'm actively looking for AI Engineer, LLM Developer and Agentic Systems roles. Based in Bengaluru, open to remote. Target: 15–25 LPA.</p>
+    <div class="contact-links">
+      <a href="mailto:kushalpoddar199@gmail.com" class="contact-link">📧 Email Me</a>
+      <a href="https://www.linkedin.com/in/kushal-raj-poddar-754b72242/" target="_blank" class="contact-link">💼 LinkedIn</a>
+      <a href="https://github.com/kushalpoddar199-glitch" target="_blank" class="contact-link">🐙 GitHub</a>
+    </div>
+    <div class="contact-email">
+      Or reach me directly at <a href="mailto:kushalpoddar199@gmail.com">kushalpoddar199@gmail.com</a> · +91 9739745671
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <div class="wrap">
-    <div class="fgrid">
-      <div><div class="logo" style="margin-bottom:16px">VELURA</div><span style="max-width:280px">Natural stone, visualised in your space before it arrives.</span><span>Bengaluru · India</span></div>
-      <div><h5>Product</h5><a href="photo.html">Visualizer</a><a href="#collection">Collection</a><a href="collection.html">AR studio <span style="display:inline;color:var(--dim);font-size:11px">(beta)</span></a></div>
-      <div><h5>For business</h5><a href="#solutions">Retailers</a><a href="#solutions">Architects</a><a class="demo-link hidden" href="#">Book a demo</a></div>
-      <div><h5>Company</h5><a href="#faq">FAQ</a><a class="ig-link hidden" href="#" target="_blank" rel="noopener">Instagram</a></div>
-    </div>
-    <div class="fbig">VELURA</div>
-    <div class="fbase"><span>© 2026 Velura. All rights reserved.</span><span>Material intelligence.</span></div>
-  </div>
+  <div>© 2026 Kushal Raj Poddar · Built with ❤️ and too much caffeine</div>
+  <div>Bengaluru, India · Open to Remote</div>
 </footer>
 
 <script>
-'use strict';
-/* ── Business details — fill these in ─────────────────────────────
-   whatsapp: country code + number, digits only, e.g. '919876543210'
-   instagram: full profile URL                                       */
-const CONTACT = window.Velura.config;
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
 
-const $ = id => document.getElementById(id);
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const HERO = [
-  ['statuario', 'The iconic one'], ['blue-roma', 'The unexpected'], ['amazonite', 'The rare one'],
-  ['gold-pietra-onyx', 'The illuminated one'], ['emperador-grey', 'The old soul'], ['raggio-verde-ii', 'The unconventional one'],
-  ['beige-classic-tvt', 'The understated minimalist'], ['diamond-onyx', 'The everlasting essence'], ['arctic-blue', 'The maximalist'],
-];
-const COLLECTIONS = { all: 'All', white: 'Whites', black: 'Blacks', grey: 'Greys', beige: 'Beiges', onyx: 'Onyx', gold: 'Golds', green: 'Greens', blue: 'Blues', pink: 'Pinks' };
-const PERSONA = {
-  white: ['The quiet statement', 'Luminous, sculptural and timeless.'], black: ['The bold minimalist', 'Striking, modern, timeless.'], grey: ['The modern classic', 'Composed, architectural, contemporary.'],
-  beige: ['The everlasting warmth', 'Soft, refined and versatile.'], onyx: ['The illuminated one', 'Translucent, luminous and rare.'],
-  gold: ['The maximalist', 'Dramatic and impossible to ignore.'], green: ['The unconventional one', 'Bold, organic, distinctive.'],
-  blue: ['The unexpected', 'Cool depth and quiet drama.'], pink: ['The romantic', 'Blush tones, quiet confidence.'],
-};
-const SPECIAL = [
-  [/portoro|black.*gold|nero.*oro/i, 'The maximalist', 'Gold veins on black.'], [/marquina|nero|black/i, 'The bold minimalist', 'Striking, modern, timeless.'],
-  [/statuario/i, 'The iconic one', 'Classic, elegant and refined.'], [/calacatta/i, 'The quiet statement', 'Bold veins on a luminous ground.'],
-  [/emperador/i, 'The old soul', 'Rich, grounded and warm.'], [/tvt|travertin/i, 'The understated minimalist', 'Earthy, tactile, effortlessly warm.'],
-  [/crema|marfil/i, 'The everlasting essence', 'A natural warm canvas.'], [/amazon/i, 'The rare one', 'Ocean light, held in stone.'],
-  [/roma/i, 'The unexpected', 'Rings of colour, cut by gold.'],
-];
-const persona = s => { for (const [re, a, b] of SPECIAL) if (re.test(s.name)) return [a, b]; return PERSONA[s.family] || ['The natural one', 'Shaped by the earth.']; };
-const tex = slug => `stones/${slug}.jpg`;
-const preload = src => new Promise(r => { const i = new Image(); i.onload = () => r(true); i.onerror = () => r(false); i.src = src; });
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 4 + 'px';
+  cursor.style.top = my - 4 + 'px';
+});
 
-/* contact links */
-if (CONTACT.whatsapp) {
-  const href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent('Hi Velura — I’d like a demo of the stone visualizer for my business.')}`;
-  document.querySelectorAll('.demo-link').forEach(a => { a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.classList.remove('hidden'); });
-  document.querySelectorAll('.demo-link-alt').forEach(a => { a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.firstChild.textContent = 'Book a demo '; });
+function animateRing() {
+  rx += (mx - rx - 16) * 0.15;
+  ry += (my - ry - 16) * 0.15;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
 }
-if (CONTACT.instagram) document.querySelectorAll('.ig-link').forEach(a => { a.href = CONTACT.instagram; a.classList.remove('hidden'); });
+animateRing();
 
-/* nav */
-const nav = $('nav');
-addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 40), { passive: true });
-$('menuBtn').onclick = () => document.body.classList.toggle('menu');
-$('sheet').onclick = e => { if (e.target.closest('a')) document.body.classList.remove('menu'); };
-
-/* scroll reveal */
-const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .18 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-/* background stones for static sections */
-document.querySelectorAll('[data-stone]').forEach(el => { const t = el.querySelector('.bg') || el; t.style.backgroundImage = `url('${tex(el.dataset.stone)}')`; });
-$('ctaBg').style.backgroundImage = `url('${tex('statuario-wow')}')`;
-addEventListener('scroll', () => { const r = $('cta').getBoundingClientRect(); $('ctaBg').style.setProperty('--py', ((r.top - innerHeight / 2) * -.08) + 'px'); }, { passive: true });
-
-/* ── hero: slab you can drag through, with a light that follows you ── */
-let catalog = [], heroIdx = 0, heroTimer = 0;
-const DUR = 6500;
-function buildHero() {
-  const list = HERO.map(([slug, p]) => ({ s: catalog.find(c => c.slug === slug), p })).filter(x => x.s);
-  $('hTot').textContent = String(list.length).padStart(2, '0');
-  $('rail').innerHTML = list.map((x, i) => `<button data-i="${i}" style="background-image:url('${x.s.thumb}')" aria-label="${x.s.name}"><i></i></button>`).join('');
-  $('rail').style.setProperty('--dur', DUR + 'ms');
-  $('rail').onclick = e => { const b = e.target.closest('button'); if (b) showHero(+b.dataset.i, list); };
-  list.forEach(x => preload(tex(x.s.slug)));
-  showHero(0, list);
-  // drag / swipe to scrub stones
-  const hero = $('hero'); let sx = null, moved = false;
-  hero.addEventListener('pointerdown', e => { if (e.target.closest('a,button')) return; sx = e.clientX; moved = false; hero.classList.add('drag'); });
-  addEventListener('pointerup', () => { sx = null; hero.classList.remove('drag'); });
-  hero.addEventListener('pointermove', e => {
-    const r = hero.getBoundingClientRect();
-    $('sheen').style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-    $('sheen').style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
-    if (sx == null) return;
-    const dx = e.clientX - sx;
-    if (Math.abs(dx) > 70) { showHero((heroIdx + (dx < 0 ? 1 : -1) + list.length) % list.length, list); sx = e.clientX; moved = true; }
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'scale(2)';
+    ring.style.transform = 'scale(1.5)';
+    ring.style.opacity = '0.3';
   });
-  // phone: tilt moves the light
-  addEventListener('deviceorientation', e => {
-    if (e.gamma == null) return;
-    $('sheen').style.setProperty('--mx', (50 + e.gamma * 1.4) + '%'); $('sheen').style.setProperty('--my', (30 + (e.beta - 45) * .8) + '%');
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'scale(1)';
+    ring.style.transform = 'scale(1)';
+    ring.style.opacity = '0.5';
   });
-}
-function showHero(i, list) {
-  heroIdx = i; const { s, p } = list[i];
-  const slabs = $('slabs'), layer = document.createElement('div');
-  layer.className = 'slab-l'; layer.style.backgroundImage = `url('${tex(s.slug)}'), url('${s.thumb}')`;
-  slabs.appendChild(layer);
-  requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add('on')));
-  [...slabs.children].slice(0, -1).forEach(o => { o.classList.remove('on'); setTimeout(() => o.remove(), 1700); });
-  const hs = $('hstone'); hs.classList.add('swap');
-  setTimeout(() => { $('hIdx').textContent = String(i + 1).padStart(2, '0'); $('hName').textContent = s.name; $('hPersona').textContent = p; hs.classList.remove('swap'); }, 300);
-  $('rail').querySelectorAll('button').forEach((b, k) => { b.classList.remove('on'); void b.offsetWidth; b.classList.toggle('on', k === i); });
-  clearTimeout(heroTimer);
-  if (!reduce) heroTimer = setTimeout(() => showHero((i + 1) % list.length, list), DUR);
-}
-// pause the slideshow when the hero is off screen
-new IntersectionObserver(([e]) => { if (!e.isIntersecting) clearTimeout(heroTimer); }).observe($('hero'));
+});
 
-/* ── marquee ── */
-function buildMarquee() {
-  const pick = catalog.filter((s, i) => i % 5 === 0).slice(0, 26);
-  const html = pick.map(s => `<a href="slab.html?id=${s.slug}"><span style="background-image:url('${s.thumb}')"></span>${s.name}</a>`).join('');
-  $('mtrack').innerHTML = html + html;
-}
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
 
-/* ── step visuals ── */
-function buildSteps() {
-  const three = ['calacatta-oro', 'statuario', 'amazonite'].map(sl => catalog.find(c => c.slug === sl)).filter(Boolean);
-  $('v2').innerHTML = three.map(s => `<div class="card" style="background-image:url('${tex(s.slug)}'),url('${s.thumb}')"></div>`).join('');
-  const f = $('v3'), img = tex('statuario');
-  let h = '';
-  for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
-    const delay = (r * 6 + (r % 2 ? 5 - c : c)) * 70 + 400;
-    h += `<i style="background-image:url('${img}');background-position:${c * 20}% ${r * 33.3}%;transition-delay:${delay}ms,${delay}ms"></i>`;
-  }
-  f.innerHTML = h;
-}
-
-/* ── collection: draggable personality cards ── */
-let fam = 'all';
-function buildFilter() {
-  const counts = {}; catalog.forEach(s => counts[s.family] = (counts[s.family] || 0) + 1);
-  const fams = ['all', ...Object.keys(COLLECTIONS).filter(f => f !== 'all' && counts[f])];
-  $('cfilter').innerHTML = fams.map(f => `<button data-f="${f}" class="${f === fam ? 'on' : ''}">${COLLECTIONS[f]}<sup>${f === 'all' ? catalog.length : counts[f]}</sup></button>`).join('');
-  $('cfilter').onclick = e => { const b = e.target.closest('button'); if (!b) return; fam = b.dataset.f; $('cfilter').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); buildCards(); $('cards').scrollTo({ left: 0 }); };
-}
-let cardObs;
-function buildCards() {
-  const list = catalog.filter(s => fam === 'all' || s.family === fam);
-  $('cards').innerHTML = list.map(s => {
-    const [p, l] = persona(s);
-    return `<a class="pc" href="slab.html?id=${s.slug}" draggable="false">
-      <div class="bg" style="background-image:url('${s.thumb}');filter:blur(6px);transform:scale(1.1)"></div><div class="bg hi" data-src="${tex(s.slug)}"></div>
-      <div class="mk">VELURA</div><div class="mt">Natural stone<br>Timeless spaces</div>
-      <div class="txt"><h4>${s.name}</h4><div class="r"></div><div class="p">${p}</div><div class="l">${l}</div></div>
-      <span class="try" data-try="${s.slug}">See it on my floor →</span></a>`;
-  }).join('');
-  if (cardObs) cardObs.disconnect();
-  cardObs = new IntersectionObserver(es => es.forEach(e => {
-    if (!e.isIntersecting) return; const el = e.target; cardObs.unobserve(el);
-    preload(el.dataset.src).then(ok => { if (ok) { el.style.backgroundImage = `url('${el.dataset.src}')`; el.classList.add('ready'); } });
-  }), { rootMargin: '0px 400px' });
-  $('cards').querySelectorAll('.bg.hi').forEach(el => cardObs.observe(el));
-  updateProg();
-}
-function updateProg() {
-  const c = $('cards'), max = c.scrollWidth - c.clientWidth, w = c.clientWidth / c.scrollWidth;
-  $('cprog').style.width = (w * 100) + '%';
-  $('cprog').style.left = (max > 0 ? c.scrollLeft / max * (1 - w) * 100 : 0) + '%';
-}
-(() => {
-  const c = $('cards'); let down = null, moved = 0;
-  c.addEventListener('scroll', updateProg, { passive: true });
-  c.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; down = { x: e.clientX, l: c.scrollLeft }; moved = 0; });
-  addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; moved = Math.max(moved, Math.abs(dx)); if (moved > 4) c.classList.add('drag'); c.scrollLeft = down.l - dx; });
-  addEventListener('pointerup', () => { if (!down) return; down = null; setTimeout(() => c.classList.remove('drag'), 0); });
-  c.addEventListener('click', e => {
-    if (moved > 6) { e.preventDefault(); e.stopPropagation(); moved = 0; return; }
-    const t = e.target.closest('[data-try]'); if (t) { e.preventDefault(); location.href = 'photo.html?stone=' + t.dataset.try; }
-  }, true);
-  const step = d => c.scrollBy({ left: d * c.clientWidth * .8, behavior: 'smooth' });
-  $('cPrev').onclick = () => step(-1); $('cNext').onclick = () => step(1);
-  addEventListener('resize', updateProg);
-})();
-
-/* faq */
-$('faqList').onclick = e => { const b = e.target.closest('button'); if (b) b.parentNode.classList.toggle('open'); };
-
-/* boot */
-fetch('catalog.json').then(r => r.json()).then(d => {
-  catalog = d; buildHero(); buildMarquee(); buildSteps(); buildFilter(); buildCards(); window.Velura.dock();
-}).catch(() => { $('hName').textContent = 'Natural stone'; });
+reveals.forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
