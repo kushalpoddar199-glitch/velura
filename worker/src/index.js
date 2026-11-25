@@ -10,7 +10,9 @@
  * light, shadows, reflections, edges. It is told not to redraw the stone.
  *
  * Secrets / vars (see wrangler.toml):
- *   FAL_KEY          secret   fal.ai API key
+ *   GEMINI_KEY       secret   Google AI Studio API key (used first when set)
+ *   GEMINI_MODEL     var      Gemini image model (default gemini-2.5-flash-image)
+ *   FAL_KEY          secret   fal.ai API key (fallback when GEMINI_KEY is not set)
  *   ALLOWED_ORIGINS  var      comma-separated list of sites allowed to call this
  *   MODEL            var      fal endpoint id (default fal-ai/nano-banana-2/edit)
  *   DAILY_PER_IP     var      renders per visitor per day (default 15)
@@ -114,6 +116,36 @@ async function listLeads(url, env, H) {
   return json({ leads, total: keys.length }, 200, H);
 }
 
+/* ── Gemini (Google AI Studio) ─────────────────────────────────
+   Sends the prompt + the two photos, returns the edited image as a data URI. */
+function splitDataUri(u) {
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(u);
+  return m ? { mime_type: m[1], data: m[2] } : null;
+}
+async function renderWithGemini(env, text, room, composite) {
+  const a = splitDataUri(room), b = splitDataUri(composite);
+  if (!a || !b) return { error: 'bad_images', status: 400 };
+  const model = env.GEMINI_MODEL || 'gemini-2.5-flash-image';
+  let r;
+  try {
+    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'x-goog-api-key': env.GEMINI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text }, { inline_data: a }, { inline_data: b }] }],
+        generationConfig: { responseModalities: ['IMAGE'] },
+      }),
+    });
+  } catch (e) { return { error: 'upstream_unreachable', status: 502 }; }
+  if (!r.ok) { console.log('gemini error', r.status, (await r.text()).slice(0, 300)); return { error: 'upstream', status: 502, upstream: r.status }; }
+  const out = await r.json();
+  const parts = (out.candidates && out.candidates[0] && out.candidates[0].content && out.candidates[0].content.parts) || [];
+  const img = parts.find(p => (p.inlineData || p.inline_data));
+  const d = img && (img.inlineData || img.inline_data);
+  if (!d || !d.data) { console.log('gemini no image', JSON.stringify(out).slice(0, 300)); return { error: 'no_image', status: 502 }; }
+  return { image: `data:${d.mimeType || d.mime_type || 'image/png'};base64,${d.data}`, model };
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -122,13 +154,13 @@ export default {
     const H = cors(origin, allowed);
 
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: H });
-    if (url.pathname === '/health') return json({ ok: true, model: env.MODEL || 'fal-ai/nano-banana-2/edit', key: !!env.FAL_KEY }, 200, H);
+    if (url.pathname === '/health') return json({ ok: true, provider: env.GEMINI_KEY ? 'gemini' : 'fal', model: env.GEMINI_KEY ? (env.GEMINI_MODEL || 'gemini-2.5-flash-image') : (env.MODEL || 'fal-ai/nano-banana-2/edit'), key: !!(env.GEMINI_KEY || env.FAL_KEY) }, 200, H);
     if (url.pathname === '/lead' && req.method === 'POST') return saveLead(req, env, H, allowed, origin);
     if (url.pathname === '/leads' && req.method === 'GET') return listLeads(url, env, H);
     if (url.pathname !== '/render' || req.method !== 'POST') return json({ error: 'not_found' }, 404, H);
 
     if (!(allowed.includes('*') || allowed.includes(origin))) return json({ error: 'forbidden_origin' }, 403, H);
-    if (!env.FAL_KEY) return json({ error: 'not_configured' }, 503, H);
+    if (!env.GEMINI_KEY && !env.FAL_KEY) return json({ error: 'not_configured' }, 503, H);
 
     let body;
     try { body = await req.json(); } catch { return json({ error: 'bad_json' }, 400, H); }
@@ -139,11 +171,20 @@ export default {
     const lim = await checkLimits(env, ip);
     if (!lim.ok) return json({ error: lim.reason }, 429, H);
 
+    const clean = v => String(v || '').slice(0, 60).replace(/[^\w\s×x·\-.()&']/g, '');
+    const promptText = prompt({ stone: clean(body.stone), size: clean(body.size), pattern: clean(body.pattern), finish: clean(body.finish) });
+
+    if (env.GEMINI_KEY) {
+      const g = await renderWithGemini(env, promptText, room, composite);
+      if (g.error) return json({ error: g.error, status: g.upstream }, g.status, H);
+      ctx.waitUntil(lim.commit());
+      return json({ image: g.image, model: g.model, remaining: lim.remaining }, 200, H);
+    }
+
     const model = env.MODEL || 'fal-ai/nano-banana-2/edit';
     const base = env.FAL_BASE || 'https://fal.run';
-    const clean = v => String(v || '').slice(0, 60).replace(/[^\w\s×x·\-.()&']/g, '');
     const input = {
-      prompt: prompt({ stone: clean(body.stone), size: clean(body.size), pattern: clean(body.pattern), finish: clean(body.finish) }),
+      prompt: promptText,
       image_urls: [room, composite],
       num_images: 1,
       aspect_ratio: 'auto',

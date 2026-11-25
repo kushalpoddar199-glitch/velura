@@ -5,7 +5,8 @@ compatibility_date = "2026-10-01"
 [vars]
 # Sites allowed to call the render API (comma-separated, no trailing slash)
 ALLOWED_ORIGINS = "https://kushalpoddar199-glitch.github.io,https://velurastudio.in,https://www.velurastudio.in,http://localhost:8765"
-MODEL = "fal-ai/nano-banana-2/edit"
+MODEL = "fal-ai/nano-banana-2/edit"   # fal fallback only
+GEMINI_MODEL = "gemini-2.5-flash-image"
 RESOLUTION = "1K"
 DAILY_PER_IP = "15"
 DAILY_TOTAL = "300"
@@ -16,4 +17,5 @@ DAILY_TOTAL = "300"
 binding = "RATE"
 id = "dd1bf52a14f24d0bbcbfd489a2806924"
 
-# Secret (never commit it):  npx wrangler secret put FAL_KEY
+# Secrets (never commit):  npx wrangler secret put GEMINI_KEY   (Google AI Studio key, used first)
+#                          npx wrangler secret put FAL_KEY      (optional fallback)
